@@ -1,0 +1,176 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String         @id @default(uuid())
+  email           String         @unique
+  username        String         @unique
+  passwordHash    String
+  role            String         @default("PLAYER") // ADMIN | PLAYER
+  ign             String         // FC Online Coach Name
+  discordTag      String?
+  squadValue      BigInt         @default(0) // FC Online Squad Value in BP
+  favoriteClub    String?        @default("Real Madrid")
+  eloRating       Int            @default(1200)
+  totalWins       Int            @default(0)
+  totalLosses     Int            @default(0)
+  avatarUrl       String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  squad           Squad?
+  registrations   Registration[]
+  homeMatches     Match[]        @relation("HomePlayer")
+  awayMatches     Match[]        @relation("AwayPlayer")
+  wonMatches      Match[]        @relation("WinnerPlayer")
+  submissions     MatchSubmission[]
+  groupStandings  GroupStanding[]
+}
+
+model FootballPlayer {
+  id            String   @id @default(uuid())
+  name          String
+  position      String   // ST, LW, RW, CAM, CM, CDM, LB, CB, RB, GK
+  overall       Int
+  season        String   // ICON, 24TS, 23UCL, SPL, LN, CAP, etc.
+  cardLevel     Int      @default(5) // +1 ~ +13
+  nationality   String
+  club          String
+  portrait      String
+  salary        Int      // BP Salary Cost (e.g. 26)
+  traits        String   // Comma-separated or JSON
+  preferredFoot String   // e.g. "Right"
+  weakFoot      Int      // 1 ~ 5
+  skillMoves    Int      // 1 ~ 5 stars
+  height        String   // e.g. "187 cm"
+  weight        String   // e.g. "83 kg"
+  createdAt     DateTime @default(now())
+
+  squadPlayers  SquadPlayer[]
+}
+
+model Squad {
+  id           String        @id @default(uuid())
+  userId       String        @unique
+  club         String        @default("Real Madrid")
+  formation    String        @default("4-2-3-1")
+  manager      String        @default("Carlo Ancelotti (+5% Acceleration)")
+  totalSalary  Int           @default(252)
+  maxSalary    Int           @default(260)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  squadPlayers SquadPlayer[]
+}
+
+model SquadPlayer {
+  id               String         @id @default(uuid())
+  squadId          String
+  footballPlayerId String
+  pitchPosition    String         // ST, LW, RW, CAM, LDM, RDM, LB, LCB, RCB, RB, GK
+  cardLevel        Int            @default(5) // +1 ~ +13
+
+  squad            Squad          @relation(fields: [squadId], references: [id], onDelete: Cascade)
+  footballPlayer   FootballPlayer @relation(fields: [footballPlayerId], references: [id], onDelete: Cascade)
+
+  @@unique([squadId, pitchPosition])
+}
+
+model Tournament {
+  id              String           @id @default(uuid())
+  title           String
+  description     String
+  format          String           @default("SINGLE_ELIMINATION")
+  status          String           @default("DRAFT")
+  maxPlayers      Int              @default(16)
+  prizePool       String           @default("$500 + 5,000 FC Points")
+  rules           String
+  bannerUrl       String?
+  startDate       DateTime
+  checkInMinutes  Int              @default(30)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  registrations   Registration[]
+  matches         Match[]
+  groupStandings  GroupStanding[]
+}
+
+model Registration {
+  id           String     @id @default(uuid())
+  tournamentId String
+  userId       String
+  seedNumber   Int?
+  isCheckedIn  Boolean    @default(false)
+  registeredAt DateTime   @default(now())
+
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, userId])
+}
+
+model Match {
+  id           String      @id @default(uuid())
+  tournamentId String
+  round        Int
+  matchNumber  Int
+  bracketType  String      @default("WINNERS")
+  groupName    String?
+  homePlayerId String?
+  awayPlayerId String?
+  homeScore    Int         @default(0)
+  awayScore    Int         @default(0)
+  winnerId     String?
+  status       String      @default("SCHEDULED")
+  scheduledAt  DateTime?
+  completedAt  DateTime?
+
+  tournament   Tournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  homePlayer   User?       @relation("HomePlayer", fields: [homePlayerId], references: [id])
+  awayPlayer   User?       @relation("AwayPlayer", fields: [awayPlayerId], references: [id])
+  winner       User?       @relation("WinnerPlayer", fields: [winnerId], references: [id])
+
+  submissions  MatchSubmission[]
+}
+
+model MatchSubmission {
+  id            String   @id @default(uuid())
+  matchId       String
+  submittedById String
+  homeScore     Int
+  awayScore     Int
+  proofUrl      String?
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  match         Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  submittedBy   User     @relation(fields: [submittedById], references: [id], onDelete: Cascade)
+}
+
+model GroupStanding {
+  id           String     @id @default(uuid())
+  tournamentId String
+  groupName    String
+  userId       String
+  played       Int        @default(0)
+  won          Int        @default(0)
+  drawn        Int        @default(0)
+  lost         Int        @default(0)
+  goalsFor     Int        @default(0)
+  goalsAgainst Int        @default(0)
+  goalDiff     Int        @default(0)
+  points       Int        @default(0)
+
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, userId])
+}
