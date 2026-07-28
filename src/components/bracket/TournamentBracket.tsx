@@ -1,150 +1,176 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { motion } from "framer-motion";
-import { Minus, Plus, Maximize2, RotateCcw } from "lucide-react";
-import BracketNode, { MatchNodeData } from "./BracketNode";
-import PlayerDialog from "../squad/PlayerDialog";
-import TournamentOverview from "./TournamentOverview";
+import { useState, useRef, useEffect } from "react";
+import { Competitor, Match, TournamentSize } from "@/types/tournament";
+import MatchCard from "./MatchCard";
+import { ZoomIn, ZoomOut, Maximize2, Move, Flame, Trophy, Play } from "lucide-react";
 
 interface TournamentBracketProps {
-  tournamentTitle?: string;
-  format?: string;
-  matches: MatchNodeData[];
-  isAdmin?: boolean;
+  matches: Match[];
+  tournamentSize: TournamentSize;
+  onSelectPlayer: (competitor: Competitor) => void;
+  onSimulateMatch: (matchId: string) => void;
 }
 
 export default function TournamentBracket({
-  tournamentTitle,
-  format = "SINGLE_ELIMINATION",
   matches,
+  tournamentSize,
+  onSelectPlayer,
+  onSimulateMatch,
 }: TournamentBracketProps) {
-  const [zoomScale, setZoomScale] = useState<number>(1);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [isPlayerDialogOpen, setIsPlayerDialogOpen] = useState<boolean>(false);
-
+  // Zoom & Pan Canvas State
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleZoomIn = () => setZoomScale((prev) => Math.min(prev + 0.15, 1.5));
-  const handleZoomOut = () => setZoomScale((prev) => Math.max(prev - 0.15, 0.6));
-  const handleResetZoom = () => setZoomScale(1);
+  // Group matches by round index (1..N)
+  const totalRounds = Math.log2(tournamentSize);
+  const roundsMap: Record<number, Match[]> = {};
 
-  // Group matches by round
-  const winnersMatches = matches.filter((m) => m.bracketType === "WINNERS" || m.bracketType === "SINGLE");
-  const rounds = Array.from(new Set(winnersMatches.map((m) => m.round))).sort((a, b) => a - b);
+  for (let r = 1; r <= totalRounds; r++) {
+    roundsMap[r] = matches.filter((m) => m.round === r);
+  }
 
-  const completedCount = matches.filter((m) => m.status === "COMPLETED").length;
-  const totalMatchesCount = matches.length || 15;
-
-  const getRoundInfo = (rIndex: number, totalRounds: number, matchCount: number) => {
-    if (rIndex === totalRounds) return { title: "GRAND FINAL", date: "May 30" };
-    if (rIndex === totalRounds - 1) return { title: "SEMI FINALS", date: "May 28 – May 29" };
-    if (rIndex === totalRounds - 2) return { title: "QUARTER FINALS", date: "May 24 – May 27" };
-    return { title: `ROUND OF ${matchCount * 2}`, date: "May 20 – May 23" };
+  // Pan Mouse Handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Only drag if target is canvas background, not interactive match cards
+    if ((e.target as HTMLElement).closest(".cyber-card") || (e.target as HTMLElement).closest("button")) {
+      return;
+    }
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
   };
 
-  const handleSelectPlayer = (player: any) => {
-    setSelectedUser(player);
-    setIsPlayerDialogOpen(true);
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleZoomIn = () => setZoom((z) => Math.min(1.8, z + 0.15));
+  const handleZoomOut = () => setZoom((z) => Math.max(0.4, z - 0.15));
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  // Wheel zoom handler
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      if (e.deltaY < 0) handleZoomIn();
+      else handleZoomOut();
+    }
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6 w-full h-[calc(100vh-100px)] min-h-[640px] p-6">
-      {/* Center Canvas Bracket Container */}
-      <div className="relative flex-1 rounded-3xl border border-[#161f30] overflow-hidden flex flex-col justify-between bg-[#060911]">
-        {/* Zoom Controls Overlay (Bottom Right of Bracket Canvas) */}
-        <div className="absolute bottom-6 right-6 z-30 flex items-center gap-1.5 bg-[#121926]/90 backdrop-blur-md p-1.5 rounded-2xl border border-[#1d2638] shadow-2xl">
+    <div className="relative w-full h-[calc(100vh-120px)] bg-[#050811] rounded-3xl border border-[#141d30] overflow-hidden shadow-2xl flex flex-col">
+      
+      {/* Top Floating Controls Bar: Zoom & Canvas Guide */}
+      <div className="absolute top-4 left-6 right-6 z-30 flex items-center justify-between pointer-events-none">
+        
+        {/* Left Indicator */}
+        <div className="pointer-events-auto bg-[#0a101f]/90 backdrop-blur border border-[#1b2742] px-4 py-2 rounded-2xl flex items-center gap-3 shadow-xl">
+          <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></div>
+          <span className="text-xs font-black text-white uppercase tracking-wider">
+            {tournamentSize}-PLAYER SINGLE ELIMINATION BRACKET
+          </span>
+        </div>
+
+        {/* Right Zoom Control Toolbar */}
+        <div className="pointer-events-auto bg-[#0a101f]/90 backdrop-blur border border-[#1b2742] p-1.5 rounded-2xl flex items-center gap-1 shadow-xl">
           <button
-            onClick={handleZoomOut}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#1a2334] transition"
-            title="Zoom Out"
+            onClick={handleZoomIn}
+            className="p-2 rounded-xl bg-slate-900 hover:bg-cyan-500 hover:text-black text-slate-300 transition"
+            title="Zoom In"
           >
-            <Minus className="w-4 h-4" />
+            <ZoomIn className="w-4 h-4" />
           </button>
           <button
+            onClick={handleZoomOut}
+            className="p-2 rounded-xl bg-slate-900 hover:bg-cyan-500 hover:text-black text-slate-300 transition"
+            title="Zoom Out"
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          <span className="text-[10px] font-mono font-bold text-cyan-400 px-2">
+            {Math.round(zoom * 100)}%
+          </span>
+          <button
             onClick={handleResetZoom}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#1a2334] transition"
-            title="Fullscreen / Reset"
+            className="p-2 rounded-xl bg-slate-900 hover:bg-cyan-500 hover:text-black text-slate-300 transition"
+            title="Reset View"
           >
             <Maximize2 className="w-4 h-4" />
           </button>
-          <button
-            onClick={handleZoomIn}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#1a2334] transition"
-            title="Zoom In"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-          <button
-            onClick={handleResetZoom}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-[#1a2334] transition"
-            title="Reset"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
         </div>
 
-        {/* Pan / Drag Canvas Window */}
+      </div>
+
+      {/* Main Drag & Zoom Viewport Container */}
+      <div
+        ref={containerRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onWheel={handleWheel}
+        className={`w-full h-full overflow-auto p-12 flex items-center justify-start cursor-grab ${
+          isDragging ? "cursor-grabbing" : ""
+        }`}
+        style={{
+          userSelect: "none",
+          touchAction: "none"
+        }}
+      >
+        {/* Transform Canvas Layer */}
         <div
-          ref={containerRef}
-          className="w-full h-full overflow-auto cursor-grab active:cursor-grabbing p-12 flex justify-center items-center select-none"
+          className="relative transition-transform duration-75 origin-top-left flex items-start gap-16 lg:gap-24 my-auto min-w-max p-8"
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`
+          }}
         >
-          <motion.div
-            drag
-            dragConstraints={containerRef}
-            dragElastic={0.05}
-            animate={{ scale: zoomScale }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="flex gap-16 items-stretch justify-center py-6 min-w-max"
-          >
-            {rounds.map((rIndex) => {
-              const roundMatches = winnersMatches.filter((m) => m.round === rIndex);
-              const info = getRoundInfo(rIndex, rounds.length, roundMatches.length);
+          {/* Loop Round Columns */}
+          {Array.from({ length: totalRounds }).map((_, rIdx) => {
+            const roundNumber = rIdx + 1;
+            const roundMatches = roundsMap[roundNumber] || [];
+            const roundTitle = roundMatches[0]?.roundName || `Round ${roundNumber}`;
 
-              return (
-                <div key={rIndex} className="flex flex-col justify-between items-center gap-6">
-                  {/* Round Header & Date */}
-                  <div className="text-center">
-                    <span className="text-xs font-black tracking-widest text-slate-300 uppercase block">
-                      {info.title}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-medium block mt-0.5">
-                      {info.date}
-                    </span>
-                  </div>
-
-                  {/* Match Cards Container */}
-                  <div className="flex flex-col justify-around flex-1 gap-10">
-                    {roundMatches.map((match) => (
-                      <BracketNode
-                        key={match.id}
-                        match={match}
-                        onSelectPlayer={handleSelectPlayer}
-                      />
-                    ))}
-                  </div>
+            return (
+              <div key={roundNumber} className="flex flex-col gap-6 items-center">
+                {/* Round Header Label */}
+                <div className="bg-[#0b1222] border border-[#1d2b48] px-5 py-2 rounded-2xl shadow-lg mb-4 text-center min-w-[200px]">
+                  <span className="text-xs font-black text-cyan-400 uppercase tracking-widest block">
+                    {roundTitle}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {roundMatches.length} {roundMatches.length === 1 ? "Match" : "Matches"}
+                  </span>
                 </div>
-              );
-            })}
-          </motion.div>
+
+                {/* Vertical Column of Match Nodes with Gap Spacing */}
+                <div
+                  className="flex flex-col justify-around h-full gap-8 lg:gap-12"
+                >
+                  {roundMatches.map((match) => (
+                    <MatchCard
+                      key={match.id}
+                      match={match}
+                      onSelectPlayer={onSelectPlayer}
+                      onSimulateMatch={onSimulateMatch}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
-
-      {/* Right Sidebar Tournament Overview */}
-      <div className="hidden xl:block">
-        <TournamentOverview
-          totalMatches={totalMatchesCount}
-          completedMatches={completedCount}
-          totalPlayers={16}
-        />
-      </div>
-
-      {/* Large Player Profile & Tactical Pitch Dialog */}
-      <PlayerDialog
-        user={selectedUser}
-        isOpen={isPlayerDialogOpen}
-        onClose={() => setIsPlayerDialogOpen(false)}
-      />
     </div>
   );
 }

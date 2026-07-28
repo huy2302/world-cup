@@ -1,130 +1,152 @@
 "use client";
 
-import { useState } from "react";
+import { FootballPlayer, FormationType, TacticalSquad } from "@/types/tournament";
 import FootballCard from "./FootballCard";
-import PlayerInfoDialog from "./PlayerInfoDialog";
-import { FootballPlayerDetail } from "./PlayerDetailModal";
-
-export interface SquadPlayerItem {
-  id: string;
-  pitchPosition: string;
-  cardLevel: number;
-  footballPlayer: FootballPlayerDetail;
-}
 
 interface FootballPitchProps {
-  formation?: string;
-  players: SquadPlayerItem[];
+  squad: TacticalSquad;
+  onSelectPlayer?: (player: FootballPlayer) => void;
 }
 
-export default function FootballPitch({ formation = "4-2-3-1", players }: FootballPitchProps) {
-  const [selectedPlayer, setSelectedPlayer] = useState<FootballPlayerDetail | null>(null);
+// 2D Tactical Field Coordinates (%) for each formation
+const FORMATION_COORDINATES: Record<FormationType, { slotPosition: string; top: number; left: number }[]> = {
+  "4-2-3-1": [
+    { slotPosition: "ST", top: 12, left: 50 },
+    { slotPosition: "LAM", top: 28, left: 20 },
+    { slotPosition: "CAM", top: 28, left: 50 },
+    { slotPosition: "RAM", top: 28, left: 80 },
+    { slotPosition: "LCDM", top: 48, left: 35 },
+    { slotPosition: "RCDM", top: 48, left: 65 },
+    { slotPosition: "LB", top: 68, left: 15 },
+    { slotPosition: "LCB", top: 72, left: 38 },
+    { slotPosition: "RCB", top: 72, left: 62 },
+    { slotPosition: "RB", top: 68, left: 85 },
+    { slotPosition: "GK", top: 88, left: 50 },
+  ],
+  "4-3-3": [
+    { slotPosition: "LW", top: 15, left: 20 },
+    { slotPosition: "ST", top: 12, left: 50 },
+    { slotPosition: "RW", top: 15, left: 80 },
+    { slotPosition: "LCM", top: 40, left: 28 },
+    { slotPosition: "CM", top: 44, left: 50 },
+    { slotPosition: "RCM", top: 40, left: 72 },
+    { slotPosition: "LB", top: 68, left: 15 },
+    { slotPosition: "LCB", top: 72, left: 38 },
+    { slotPosition: "RCB", top: 72, left: 62 },
+    { slotPosition: "RB", top: 68, left: 85 },
+    { slotPosition: "GK", top: 88, left: 50 },
+  ],
+  "4-1-2-1-2": [
+    { slotPosition: "LST", top: 12, left: 35 },
+    { slotPosition: "RST", top: 12, left: 65 },
+    { slotPosition: "CAM", top: 28, left: 50 },
+    { slotPosition: "LM", top: 42, left: 20 },
+    { slotPosition: "RM", top: 42, left: 80 },
+    { slotPosition: "CDM", top: 54, left: 50 },
+    { slotPosition: "LB", top: 68, left: 15 },
+    { slotPosition: "LCB", top: 72, left: 38 },
+    { slotPosition: "RCB", top: 72, left: 62 },
+    { slotPosition: "RB", top: 68, left: 85 },
+    { slotPosition: "GK", top: 88, left: 50 },
+  ],
+  "3-5-2": [
+    { slotPosition: "LST", top: 12, left: 35 },
+    { slotPosition: "RST", top: 12, left: 65 },
+    { slotPosition: "CAM", top: 28, left: 50 },
+    { slotPosition: "LM", top: 45, left: 15 },
+    { slotPosition: "LCDM", top: 48, left: 38 },
+    { slotPosition: "RCDM", top: 48, left: 62 },
+    { slotPosition: "RM", top: 45, left: 85 },
+    { slotPosition: "LCB", top: 72, left: 25 },
+    { slotPosition: "CB", top: 74, left: 50 },
+    { slotPosition: "RCB", top: 72, left: 75 },
+    { slotPosition: "GK", top: 88, left: 50 },
+  ],
+  "5-2-1-2": [
+    { slotPosition: "LST", top: 12, left: 35 },
+    { slotPosition: "RST", top: 12, left: 65 },
+    { slotPosition: "CAM", top: 28, left: 50 },
+    { slotPosition: "LCM", top: 45, left: 38 },
+    { slotPosition: "RCM", top: 45, left: 62 },
+    { slotPosition: "LWB", top: 65, left: 12 },
+    { slotPosition: "LCB", top: 72, left: 30 },
+    { slotPosition: "CB", top: 74, left: 50 },
+    { slotPosition: "RCB", top: 72, left: 70 },
+    { slotPosition: "RWB", top: 65, left: 88 },
+    { slotPosition: "GK", top: 88, left: 50 },
+  ]
+};
 
-  // Formations coordinate lookup maps (percentage top, left)
-  const formationCoords: Record<string, Record<string, { top: string; left: string }>> = {
-    "4-2-3-1": {
-      ST: { top: "12%", left: "50%" },
-      LW: { top: "25%", left: "20%" },
-      CAM: { top: "28%", left: "50%" },
-      RW: { top: "25%", left: "80%" },
-      CM: { top: "45%", left: "50%" },
-      LDM: { top: "48%", left: "32%" },
-      RDM: { top: "48%", left: "68%" },
-      LB: { top: "72%", left: "18%" },
-      LCB: { top: "75%", left: "38%" },
-      RCB: { top: "75%", left: "62%" },
-      RB: { top: "72%", left: "82%" },
-      GK: { top: "90%", left: "50%" },
-    },
-    "4-3-3": {
-      LW: { top: "15%", left: "22%" },
-      ST: { top: "12%", left: "50%" },
-      RW: { top: "15%", left: "78%" },
-      LCM: { top: "38%", left: "30%" },
-      CM: { top: "42%", left: "50%" },
-      RCM: { top: "38%", left: "70%" },
-      LB: { top: "72%", left: "18%" },
-      LCB: { top: "75%", left: "38%" },
-      RCB: { top: "75%", left: "62%" },
-      RB: { top: "72%", left: "82%" },
-      GK: { top: "90%", left: "50%" },
-    },
-  };
-
-  const currentMap = formationCoords[formation] || formationCoords["4-2-3-1"];
-
-  // Separate starters and bench
-  const starterPositions = Object.keys(currentMap);
-  const starters = players.slice(0, 11);
-  const benchPlayers = players.length > 11 ? players.slice(11) : players.slice(0, 7);
+export default function FootballPitch({ squad, onSelectPlayer }: FootballPitchProps) {
+  const coords = FORMATION_COORDINATES[squad.formation] || FORMATION_COORDINATES["4-2-3-1"];
 
   return (
-    <div className="space-y-4">
-      {/* 2D/3D Perspective Grass Pitch Canvas */}
-      <div className="relative w-full h-[520px] bg-gradient-to-b from-emerald-900 via-emerald-850 to-emerald-950 rounded-3xl border-2 border-emerald-500/40 overflow-hidden shadow-2xl p-4 perspective-1000">
-        {/* Pitch Stripes & Lines */}
-        <div className="absolute inset-0 pointer-events-none opacity-25">
-          <div className="w-full h-full bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.3)_50%)] bg-[length:100%_40px]"></div>
-          <div className="absolute inset-4 border-2 border-white rounded-2xl"></div>
-          <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-white -translate-y-1/2"></div>
-          <div className="absolute top-1/2 left-1/2 w-48 h-48 border-2 border-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute top-4 left-1/2 w-72 h-32 border-2 border-white border-t-0 -translate-x-1/2"></div>
-          <div className="absolute bottom-4 left-1/2 w-72 h-32 border-2 border-white border-b-0 -translate-x-1/2"></div>
-        </div>
+    <div className="relative w-full max-w-4xl h-[560px] sm:h-[640px] mx-auto pitch-bg rounded-3xl border-2 border-emerald-500/40 overflow-hidden shadow-2xl flex flex-col justify-between p-4">
+      {/* 2D Pitch Line Markings (SVG overlay) */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40" stroke="#00f0ff" strokeWidth="2" fill="none">
+        {/* Outer Boundary */}
+        <rect x="2%" y="2%" width="96%" height="96%" rx="16" />
+        
+        {/* Center Line & Circle */}
+        <line x1="2%" y1="50%" x2="98%" y2="50%" strokeDasharray="6 4" />
+        <circle cx="50%" cy="50%" r="70" />
+        <circle cx="50%" cy="50%" r="4" fill="#00f0ff" />
 
-        {/* 11 Players on Pitch */}
-        {starters.map((item, idx) => {
-          const posKey = item.pitchPosition || starterPositions[idx] || "ST";
-          const coords = currentMap[posKey] || { top: "50%", left: "50%" };
-          const p = item.footballPlayer;
+        {/* Top Penalty Box (Opponent) */}
+        <rect x="25%" y="2%" width="50%" height="18%" />
+        <rect x="36%" y="2%" width="28%" height="7%" />
+        <circle cx="50%" cy="13%" r="3" fill="#00f0ff" />
 
-          return (
-            <div
-              key={item.id || idx}
-              style={{ top: coords.top, left: coords.left }}
-              className="absolute -translate-x-1/2 -translate-y-1/2 z-10"
-            >
-              <FootballCard
-                name={p.name}
-                position={posKey}
-                overall={p.overall}
-                season={p.season}
-                cardLevel={item.cardLevel || p.cardLevel}
-                portrait={p.portrait}
-                isSelected={selectedPlayer?.name === p.name}
-                onClick={() => setSelectedPlayer(p)}
-              />
-            </div>
-          );
-        })}
-      </div>
+        {/* Bottom Penalty Box (Home) */}
+        <rect x="25%" y="80%" width="50%" height="18%" />
+        <rect x="36%" y="91%" width="28%" height="7%" />
+        <circle cx="50%" cy="87%" r="3" fill="#00f0ff" />
+      </svg>
 
-      {/* Substitutes Bench Bar (Image 2 Bottom Row) */}
-      <div className="bg-[#141b27]/90 p-4 rounded-2xl border border-[#202a3d] space-y-2">
-        <span className="text-xs font-black text-slate-300 uppercase tracking-wider block">
-          Substitutes Bench
+      {/* Render 11 Players on Pitch Coordinates */}
+      {coords.map((c, index) => {
+        const item = squad.startingXI[index] || squad.startingXI[0];
+        const player = item?.player;
+
+        if (!player) return null;
+
+        return (
+          <div
+            key={`${player.id}-${index}`}
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500"
+            style={{ top: `${c.top}%`, left: `${c.left}%` }}
+          >
+            <FootballCard
+              player={player}
+              size="sm"
+              onClick={() => onSelectPlayer?.(player)}
+            />
+          </div>
+        );
+      })}
+
+      {/* Substitutes Bench Bar */}
+      <div className="absolute bottom-3 left-4 right-4 z-20 bg-slate-950/80 backdrop-blur border border-slate-800 rounded-xl px-4 py-2 flex items-center justify-between">
+        <span className="text-[11px] font-black text-cyan-400 uppercase tracking-wider">
+          Substitutes Bench ({squad.substitutes.length})
         </span>
-        <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
-          {benchPlayers.map((item, idx) => {
-            const p = item.footballPlayer;
-            return (
-              <FootballCard
-                key={`bench-${item.id || idx}`}
-                name={p.name}
-                position={item.pitchPosition || "SUB"}
-                overall={p.overall}
-                season={p.season}
-                cardLevel={item.cardLevel || p.cardLevel}
-                portrait={p.portrait}
-                onClick={() => setSelectedPlayer(p)}
-              />
-            );
-          })}
+
+        <div className="flex items-center gap-3">
+          {squad.substitutes.map((subPlayer) => (
+            <div
+              key={subPlayer.id}
+              onClick={() => onSelectPlayer?.(subPlayer)}
+              className="flex items-center gap-2 bg-slate-900/90 hover:bg-cyan-950 border border-slate-700 hover:border-cyan-400 px-2.5 py-1 rounded-lg cursor-pointer transition"
+            >
+              <img src={subPlayer.portrait} alt={subPlayer.name} className="w-6 h-6 rounded object-cover" />
+              <div className="flex flex-col text-left leading-none">
+                <span className="text-[10px] font-bold text-white">{subPlayer.shortName}</span>
+                <span className="text-[9px] text-amber-400 font-extrabold">{subPlayer.overall} {subPlayer.position}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* Football Player Attribute Popup */}
-      <PlayerInfoDialog player={selectedPlayer} onClose={() => setSelectedPlayer(null)} />
     </div>
   );
 }
