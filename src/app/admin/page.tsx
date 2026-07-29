@@ -8,17 +8,28 @@ import AdminDisputeClient from "./AdminDisputeClient";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const session = await getSession();
+  let session = null;
+  try {
+    session = await getSession();
+  } catch {
+    session = null;
+  }
+
   if (!session || session.role !== "ADMIN") {
     redirect("/login");
   }
 
-  const res = await getDisputedMatches();
-  const disputes = res.disputes || [];
+  let disputes: any[] = [];
+  try {
+    const res = await getDisputedMatches();
+    disputes = res?.disputes || [];
+  } catch {
+    disputes = [];
+  }
 
   return (
     <div className="space-y-8">
-      <div className="glass-panel p-6 rounded-2xl border border-slate-800 flex items-center justify-between">
+      <div className="glass-panel p-6 rounded-2xl border border-[#1D263B] flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-white flex items-center gap-2.5">
             <AlertCircle className="w-6 h-6 text-red-400" />

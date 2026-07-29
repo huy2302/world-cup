@@ -39,24 +39,36 @@ export async function verifyToken(token: string): Promise<UserSession | null> {
 }
 
 export async function getSession(): Promise<UserSession | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("fconline_session")?.value;
-  if (!token) return null;
-  return verifyToken(token);
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("fconline_session")?.value;
+    if (!token) return null;
+    return verifyToken(token);
+  } catch {
+    return null;
+  }
 }
 
 export async function setSessionCookie(token: string) {
-  const cookieStore = await cookies();
-  cookieStore.set("fconline_session", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-  });
+  try {
+    const cookieStore = await cookies();
+    cookieStore.set("fconline_session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    });
+  } catch {
+    // Ignore error outside request context
+  }
 }
 
 export async function removeSessionCookie() {
-  const cookieStore = await cookies();
-  cookieStore.delete("fconline_session");
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete("fconline_session");
+  } catch {
+    // Ignore error outside request context
+  }
 }
