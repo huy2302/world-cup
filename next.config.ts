@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   cleanDistDir: true,
-  telemetry: false,
+  // telemetry: false,
 };
 
 export default nextConfig;
