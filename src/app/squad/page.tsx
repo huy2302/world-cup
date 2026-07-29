@@ -5,18 +5,41 @@ import SquadViewer from "@/components/squad/SquadViewer";
 import { Shield, Trophy, Users } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function SquadPage() {
-  const session = await getSession();
+  let session = null;
+  let userId = undefined;
+  let squad = null;
+  let dbError = false;
 
-  let userId = session?.id;
+  try {
+    session = await getSession();
+    userId = session?.id;
 
-  // Fallback to first user in database for guest preview
-  if (!userId) {
-    const firstUser = await db.user.findFirst({ where: { role: "PLAYER" } });
-    userId = firstUser?.id;
+    if (!userId) {
+      const firstUser = await db.user.findFirst({ where: { role: "PLAYER" } });
+      userId = firstUser?.id;
+    }
+
+    if (userId) {
+      squad = await db.squad.findUnique({
+        where: { userId },
+        include: {
+          squadPlayers: {
+            include: {
+              footballPlayer: true,
+            },
+          },
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Database connection error in SquadPage:", error);
+    dbError = true;
   }
 
-  if (!userId) {
+  if (dbError || !userId) {
     return (
       <div className="text-center py-20 glass-panel rounded-2xl border border-slate-800">
         <Trophy className="w-12 h-12 text-slate-600 mx-auto mb-3" />
@@ -27,17 +50,6 @@ export default async function SquadPage() {
       </div>
     );
   }
-
-  const squad = await db.squad.findUnique({
-    where: { userId },
-    include: {
-      squadPlayers: {
-        include: {
-          footballPlayer: true,
-        },
-      },
-    },
-  });
 
   if (!squad) {
     return (

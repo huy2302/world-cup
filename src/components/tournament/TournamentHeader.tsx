@@ -1,25 +1,65 @@
 "use client";
 
-import { useState } from "react";
-import { Trophy, Maximize2, Minus, Plus, RotateCcw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Trophy, FileText } from "lucide-react";
 
 interface TournamentHeaderProps {
   onZoomIn?: () => void;
   onZoomOut?: () => void;
   onResetZoom?: () => void;
   onOpenRegister?: () => void;
+  onOpenRules?: () => void;
 }
 
-export default function TournamentHeader({ onZoomIn, onZoomOut, onResetZoom, onOpenRegister }: TournamentHeaderProps) {
-  const [activeTab, setActiveTab] = useState("BRACKET");
-  const subTabs = ["BRACKET", "PLAYERS", "MATCHES", "STANDINGS", "STATS"];
+export default function TournamentHeader({ onOpenRegister, onOpenRules }: TournamentHeaderProps) {
+  const [timeLeft, setTimeLeft] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    isExpired: boolean;
+  }>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isExpired: false,
+  });
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const targetDate = new Date("2026-08-03T19:00:00+07:00").getTime();
+
+    const updateCountdown = () => {
+      const now = Date.now();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true });
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds, isExpired: false });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatTwoDigits = (num: number) => String(num).padStart(2, "0");
 
   return (
     <div className="flex flex-col gap-3.5 pb-2 border-b border-[#161D2F] mb-3 select-none">
-
       {/* Top Row: Title & Register CTA Button */}
-      <div className="flex items-center justify-between">
-
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         {/* Title & Live Status Tag */}
         <div className="flex flex-col gap-1">
           <h1 className="text-xl font-extrabold text-white tracking-tight">
@@ -30,22 +70,38 @@ export default function TournamentHeader({ onZoomIn, onZoomOut, onResetZoom, onO
               Live
             </span>
             <span className="text-xs text-slate-400 font-medium">
-              May 20 – Jun 30, 2024
+              Deadline: 19:00 • 03/08/2026 (GMT+7)
             </span>
           </div>
         </div>
 
-        {/* Right CTA Button & Registration Countdown */}
-        <div className="flex items-center gap-5">
-          <div className="flex flex-col items-end leading-tight">
+        {/* Right CTA Buttons & Registration Countdown */}
+        <div className="flex items-center gap-3.5 flex-wrap">
+          <div className="flex flex-col items-end leading-tight mr-1">
             <span className="text-[11px] text-slate-400 font-medium">
               Registration closes in
             </span>
             <span className="text-sm font-black text-white font-mono mt-0.5">
-              03d : 12h : 45m
+              {!mounted ? (
+                "04d : 20h : 19m"
+              ) : timeLeft.isExpired ? (
+                <span className="text-red-400">Closed</span>
+              ) : (
+                `${formatTwoDigits(timeLeft.days)}d : ${formatTwoDigits(timeLeft.hours)}h : ${formatTwoDigits(timeLeft.minutes)}m : ${formatTwoDigits(timeLeft.seconds)}s`
+              )}
             </span>
           </div>
 
+          {/* Tournament Rules Button */}
+          <button
+            onClick={onOpenRules}
+            className="bg-slate-900/90 hover:bg-slate-800 text-cyan-400 border border-cyan-500/40 hover:border-cyan-400 px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition hover:scale-105 active:scale-95 cursor-pointer shadow-lg shadow-cyan-950/40"
+          >
+            <FileText className="w-4 h-4 text-cyan-400" />
+            <span>Thể thức giải đấu</span>
+          </button>
+
+          {/* Register Button */}
           <button
             onClick={onOpenRegister}
             className="purple-glow-btn text-white px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition hover:scale-105 active:scale-95 cursor-pointer"
@@ -54,9 +110,7 @@ export default function TournamentHeader({ onZoomIn, onZoomOut, onResetZoom, onO
             <span>Register Now</span>
           </button>
         </div>
-
       </div>
-
     </div>
   );
 }

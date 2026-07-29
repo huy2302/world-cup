@@ -99,7 +99,7 @@ async function main() {
       club: "Real Madrid",
       portrait: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80",
       salary: 25,
-      traits: "Playmaker, Technical Dribbler, Box-to-Box, Leadership",
+      traits: "Playmaker, Technical Dribbler, Long Passer",
       preferredFoot: "Right / Left 4-5",
       weakFoot: 4,
       skillMoves: 4,
@@ -107,51 +107,51 @@ async function main() {
       weight: "75 kg",
     },
     {
-      name: "Michael Essien",
-      position: "LDM",
-      overall: 114,
-      season: "ICON",
-      cardLevel: 5,
-      nationality: "Ghana",
-      club: "Chelsea",
-      portrait: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80",
-      salary: 24,
-      traits: "Dives Into Tackles, Long Shot Taker, Power House",
-      preferredFoot: "Right / Left 4-5",
-      weakFoot: 4,
-      skillMoves: 3,
-      height: "177 cm",
-      weight: "80 kg",
-    },
-    {
       name: "Patrick Vieira",
-      position: "RDM",
+      position: "CDM",
       overall: 117,
       season: "ICON",
       cardLevel: 5,
       nationality: "France",
       club: "Arsenal",
-      portrait: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80",
+      portrait: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80",
       salary: 27,
-      traits: "Power Header, Dives Into Tackles, Leadership, Interceptor",
-      preferredFoot: "Right / Left 4-5",
-      weakFoot: 4,
-      skillMoves: 4,
+      traits: "Power Header, Dives Into Tackles, Leadership, Solid Player",
+      preferredFoot: "Right / Left 3-5",
+      weakFoot: 3,
+      skillMoves: 3,
       height: "192 cm",
       weight: "82 kg",
     },
     {
+      name: "Michael Essien",
+      position: "CDM",
+      overall: 114,
+      season: "LN",
+      cardLevel: 8,
+      nationality: "Ghana",
+      club: "Chelsea",
+      portrait: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80",
+      salary: 23,
+      traits: "Long Shot Taker, Dives Into Tackles",
+      preferredFoot: "Right / Left 4-5",
+      weakFoot: 4,
+      skillMoves: 3,
+      height: "177 cm",
+      weight: "85 kg",
+    },
+    {
       name: "Paolo Maldini",
-      position: "LCB",
+      position: "CB",
       overall: 118,
       season: "ICON",
       cardLevel: 5,
       nationality: "Italy",
       club: "AC Milan",
-      portrait: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&auto=format&fit=crop&q=80",
-      salary: 27,
-      traits: "Leadership, Slide Tackler, Acrobat, Aerial Threat",
-      preferredFoot: "Left / Right 4-5",
+      portrait: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=300&auto=format&fit=crop&q=80",
+      salary: 28,
+      traits: "Leadership, Slide Tackler, Technical Dribbler",
+      preferredFoot: "Right / Left 4-5",
       weakFoot: 4,
       skillMoves: 3,
       height: "186 cm",
@@ -159,15 +159,15 @@ async function main() {
     },
     {
       name: "Virgil van Dijk",
-      position: "RCB",
+      position: "CB",
       overall: 116,
       season: "24TS",
       cardLevel: 5,
       nationality: "Netherlands",
       club: "Liverpool",
-      portrait: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&auto=format&fit=crop&q=80",
+      portrait: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&auto=format&fit=crop&q=80",
       salary: 25,
-      traits: "Power Header, Leadership, Long Passer",
+      traits: "Power Header, Long Passer, Leadership",
       preferredFoot: "Right / Left 3-5",
       weakFoot: 3,
       skillMoves: 3,
@@ -177,13 +177,13 @@ async function main() {
     {
       name: "Theo Hernández",
       position: "LB",
-      overall: 112,
-      season: "23UCL",
-      cardLevel: 7,
+      overall: 114,
+      season: "SPL",
+      cardLevel: 8,
       nationality: "France",
       club: "AC Milan",
-      portrait: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop&q=80",
-      salary: 21,
+      portrait: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=300&auto=format&fit=crop&q=80",
+      salary: 22,
       traits: "Speed Dribbler, Early Crosser",
       preferredFoot: "Left / Right 3-5",
       weakFoot: 3,
@@ -194,9 +194,9 @@ async function main() {
     {
       name: "Achraf Hakimi",
       position: "RB",
-      overall: 111,
+      overall: 113,
       season: "23UCL",
-      cardLevel: 7,
+      cardLevel: 8,
       nationality: "Morocco",
       club: "Paris Saint-Germain",
       portrait: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=300&auto=format&fit=crop&q=80",
@@ -236,7 +236,7 @@ async function main() {
   console.log(`Created ${createdDbPlayers.length} football players.`);
 
   // 2. Admin & User Accounts
-  const admin = await prisma.user.create({
+  await prisma.user.create({
     data: {
       username: "admin_alex",
       email: "admin@fconline.gg",
@@ -245,20 +245,24 @@ async function main() {
       ign: "FCPro_AlexAdmin",
       discordTag: "AlexAdmin#0001",
       squadValue: BigInt(5000000000000),
-      favoriteClub: "Real Madrid",
+      favoriteClub: "Tây Ban Nha",
       eloRating: 2100,
     },
   });
 
   const playerNames = [
-    { username: "pro_huy", ign: "FCPro_HuyDev", elo: 1850, squad: 1200000000000, club: "Real Madrid" },
-    { username: "cyber_dragon", ign: "VN_CyberDragon", elo: 1720, squad: 950000000000, club: "Manchester City" },
-    { username: "striker_king", ign: "CR7_KingGamer", elo: 1680, squad: 800000000000, club: "Al Nassr" },
-    { username: "shadow_ninja", ign: "Shadow_FC4", elo: 1610, squad: 650000000000, club: "FC Barcelona" },
-    { username: "messi_magic", ign: "LM10_GOAT", elo: 1790, squad: 1100000000000, club: "Inter Miami" },
-    { username: "tactical_genius", ign: "Coach_PepPro", elo: 1540, squad: 500000000000, club: "Bayern Munich" },
-    { username: "blitz_master", ign: "Blitz_R9", elo: 1590, squad: 720000000000, club: "AC Milan" },
-    { username: "golden_glove", ign: "Neuer_Wall", elo: 1480, squad: 420000000000, club: "Paris Saint-Germain" },
+    { username: "pro_huy", ign: "FCPro_HuyDev", elo: 1850, squad: 1200000000000, club: "Tây Ban Nha", avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=200&q=80" },
+    { username: "golden_glove", ign: "Neuer_Wall", elo: 1480, squad: 420000000000, club: "Đức", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80" },
+    { username: "cyber_dragon", ign: "VN_CyberDragon", elo: 1720, squad: 950000000000, club: "Việt Nam", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=200&q=80" },
+    { username: "blitz_master", ign: "Blitz_R9", elo: 1590, squad: 720000000000, club: "Brazil", avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=200&q=80" },
+    { username: "striker_king", ign: "CR7_KingGamer", elo: 1680, squad: 800000000000, club: "Bồ Đào Nha", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80" },
+    { username: "tactical_genius", ign: "Coach_PepPro", elo: 1540, squad: 500000000000, club: "Tây Ban Nha", avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&q=80" },
+    { username: "shadow_ninja", ign: "Shadow_FC4", elo: 1610, squad: 650000000000, club: "Pháp", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" },
+    { username: "messi_magic", ign: "LM10_GOAT", elo: 1790, squad: 1100000000000, club: "Argentina", avatar: "https://images.unsplash.com/photo-1628157582853-a796fa650a6a?auto=format&fit=crop&w=200&q=80" },
+    { username: "cyber_striker", ign: "CyberStriker", elo: 1650, squad: 780000000000, club: "Anh", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" },
+    { username: "viper_king", ign: "ViperKing", elo: 1620, squad: 710000000000, club: "Hà Lan", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80" },
+    { username: "dragon_eye", ign: "DragonEye", elo: 1580, squad: 630000000000, club: "Nhật Bản", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80" },
+    { username: "kaiser_fc", ign: "Kaiser_FC", elo: 1530, squad: 590000000000, club: "Hàn Quốc", avatar: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=200&q=80" }
   ];
 
   const createdPlayers = [];
@@ -273,6 +277,7 @@ async function main() {
         discordTag: `${p.username}#1234`,
         squadValue: BigInt(p.squad),
         favoriteClub: p.club,
+        avatarUrl: p.avatar,
         eloRating: p.elo,
         totalWins: Math.floor(Math.random() * 20) + 10,
         totalLosses: Math.floor(Math.random() * 10) + 2,
@@ -287,7 +292,7 @@ async function main() {
     const squad = await prisma.squad.create({
       data: {
         userId: player.id,
-        club: player.favoriteClub || "Real Madrid",
+        club: player.favoriteClub || "Tây Ban Nha",
         formation: "4-2-3-1",
         manager: "Carlo Ancelotti (+5% Acceleration)",
         totalSalary: 254,
@@ -311,12 +316,12 @@ async function main() {
   const t1 = await prisma.tournament.create({
     data: {
       title: "FC Online Champions Cup 2026 - Season 1",
-      description: "Premier 8-Player Single Elimination Championship featuring top regional FIFA Online 4 pros with $1,000 + 10,000 FC Points prize pool.",
+      description: "Premier 16-Player Single Elimination Championship featuring top regional pros.",
       format: "SINGLE_ELIMINATION",
       status: "IN_PROGRESS",
-      maxPlayers: 8,
-      prizePool: "$1,000 + 10,000 FC Points",
-      rules: "1v1 Best of 1, Salary Limit 260 BP. No duplicate icon players allowed.",
+      maxPlayers: 16,
+      prizePool: "100 QQ",
+      rules: "1v1 Best of 1, World Cup Draft Single Elimination.",
       startDate: new Date(),
       checkInMinutes: 30,
     },
@@ -333,20 +338,24 @@ async function main() {
     });
   }
 
-  const qfMatches = [
-    { home: createdPlayers[0].id, away: createdPlayers[7].id, homeScore: 3, awayScore: 1, winner: createdPlayers[0].id, status: "COMPLETED" },
-    { home: createdPlayers[1].id, away: createdPlayers[6].id, homeScore: 2, awayScore: 0, winner: createdPlayers[1].id, status: "COMPLETED" },
-    { home: createdPlayers[2].id, away: createdPlayers[5].id, homeScore: 1, awayScore: 2, winner: createdPlayers[5].id, status: "COMPLETED" },
-    { home: createdPlayers[3].id, away: createdPlayers[4].id, homeScore: 0, awayScore: 4, winner: createdPlayers[4].id, status: "COMPLETED" },
+  // Seed Round 1 (Round of 16) matches
+  // Left side matches (1-4)
+  const round1Matches = [
+    { matchNumber: 1, home: createdPlayers[0].id, away: createdPlayers[1].id, homeScore: 3, awayScore: 1, winner: createdPlayers[0].id, status: "COMPLETED" },
+    { matchNumber: 2, home: createdPlayers[2].id, away: createdPlayers[3].id, homeScore: 2, awayScore: 0, winner: createdPlayers[2].id, status: "COMPLETED" },
+    { matchNumber: 3, home: createdPlayers[4].id, away: createdPlayers[5].id, homeScore: 1, awayScore: 2, winner: createdPlayers[5].id, status: "COMPLETED" },
+    { matchNumber: 4, home: createdPlayers[6].id, away: createdPlayers[7].id, homeScore: 0, awayScore: 4, winner: createdPlayers[7].id, status: "COMPLETED" },
+    // Right side matches (5-6)
+    { matchNumber: 5, home: createdPlayers[8].id, away: createdPlayers[9].id, homeScore: 0, awayScore: 0, winner: null, status: "SCHEDULED" },
+    { matchNumber: 6, home: createdPlayers[10].id, away: createdPlayers[11].id, homeScore: 0, awayScore: 0, winner: null, status: "SCHEDULED" },
   ];
 
-  for (let i = 0; i < qfMatches.length; i++) {
-    const m = qfMatches[i];
+  for (const m of round1Matches) {
     await prisma.match.create({
       data: {
         tournamentId: t1.id,
         round: 1,
-        matchNumber: i + 1,
+        matchNumber: m.matchNumber,
         bracketType: "WINNERS",
         homePlayerId: m.home,
         awayPlayerId: m.away,
@@ -354,40 +363,12 @@ async function main() {
         awayScore: m.awayScore,
         winnerId: m.winner,
         status: m.status,
-        completedAt: new Date(),
+        completedAt: m.status === "COMPLETED" ? new Date() : null,
       },
     });
   }
 
-  await prisma.match.create({
-    data: {
-      tournamentId: t1.id,
-      round: 2,
-      matchNumber: 5,
-      bracketType: "WINNERS",
-      homePlayerId: createdPlayers[0].id,
-      awayPlayerId: createdPlayers[1].id,
-      homeScore: 0,
-      awayScore: 0,
-      status: "READY",
-    },
-  });
-
-  await prisma.match.create({
-    data: {
-      tournamentId: t1.id,
-      round: 2,
-      matchNumber: 6,
-      bracketType: "WINNERS",
-      homePlayerId: createdPlayers[5].id,
-      awayPlayerId: createdPlayers[4].id,
-      homeScore: 0,
-      awayScore: 0,
-      status: "READY",
-    },
-  });
-
-  console.log("Seeding with FC Online Squads & Players completed successfully!");
+  console.log("Database seeded successfully!");
 }
 
 main()

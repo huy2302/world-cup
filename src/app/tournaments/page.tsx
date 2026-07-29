@@ -4,14 +4,23 @@ import { db } from "@/lib/db";
 import TournamentCard from "@/components/tournament/TournamentCard";
 import { getSession } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function TournamentsPage() {
-  const session = await getSession();
-  const tournaments = await db.tournament.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      registrations: true,
-    },
-  });
+  let session = null;
+  let tournaments: any[] = [];
+
+  try {
+    session = await getSession();
+    tournaments = await db.tournament.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        registrations: true,
+      },
+    });
+  } catch (error) {
+    console.error("Database connection error in TournamentsPage:", error);
+  }
 
   return (
     <div className="space-y-8">

@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import AdminDisputeClient from "./AdminDisputeClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   const session = await getSession();
   if (!session || session.role !== "ADMIN") {

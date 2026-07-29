@@ -81,7 +81,7 @@ const FORMATION_COORDINATES: Record<FormationType, { slotPosition: string; top: 
 export default function FootballPitch({ squad, onSelectPlayer, compact = true, heightClass }: FootballPitchProps) {
   const coords = FORMATION_COORDINATES[squad.formation] || FORMATION_COORDINATES["4-2-3-1"];
 
-  const containerHeight = heightClass || (compact ? "h-[420px] sm:h-[460px]" : "h-[500px] sm:h-[560px]");
+  const containerHeight = heightClass || (compact ? "h-[700px] sm:h-[760px]" : "h-[700px] sm:h-[760px]");
 
   const getPositionColor = (pos: string) => {
     if (["ST", "CF", "LW", "RW", "LST", "RST"].includes(pos)) return "text-amber-400 border-amber-500/40 bg-amber-950/80";
@@ -97,7 +97,7 @@ export default function FootballPitch({ squad, onSelectPlayer, compact = true, h
       <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30" stroke="#00f0ff" strokeWidth="1.5" fill="none">
         {/* Outer Boundary */}
         <rect x="2%" y="2%" width="96%" height="96%" rx="16" />
-        
+
         {/* Center Line & Circle */}
         <line x1="2%" y1="50%" x2="98%" y2="50%" strokeDasharray="5 3" />
         <circle cx="50%" cy="50%" r="60" />
