@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   ReactFlow,
   Background,
@@ -8,7 +9,8 @@ import {
   OnNodesChange
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import MatchNode from "./MatchNode";
+import MatchNode, { CompetitorData, MatchNodeData } from "./MatchNode";
+import { buildSampleSquad } from "@/data/mockTournament";
 
 const nodeTypes = {
   matchNode: MatchNode
@@ -41,8 +43,10 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     type: "matchNode",
     position: { x: 0, y: OFFSET_Y },
     data: {
-      home: { name: "Nguyễn Văn Huy", ign: "FCPro_HuyDev", avatar: AVATARS.huydev, teamName: "Tây Ban Nha", teamFlag: "https://flagcdn.com/w40/es.png", score: null },
-      away: { name: "Trần Minh Neuer", ign: "Neuer_Wall", avatar: AVATARS.neuer, teamName: "Đức", teamFlag: "https://flagcdn.com/w40/de.png", score: null }
+      id: "r16-1",
+      roundName: "VÒNG 16 - TRẬN 1",
+      home: { name: "Nguyễn Văn Huy", ign: "FCPro_HuyDev", avatar: AVATARS.huydev, teamName: "Tây Ban Nha", teamFlag: "https://flagcdn.com/w40/es.png", score: null, formation: "4-2-3-1", squad: buildSampleSquad("4-2-3-1") },
+      away: { name: "Trần Minh Neuer", ign: "Neuer_Wall", avatar: AVATARS.neuer, teamName: "Đức", teamFlag: "https://flagcdn.com/w40/de.png", score: null, formation: "4-3-3", squad: buildSampleSquad("4-3-3") }
     }
   },
   {
@@ -50,8 +54,10 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     type: "matchNode",
     position: { x: 0, y: OFFSET_Y + ROW_SPACING * 1.5 },
     data: {
-      home: { name: "Lê Hoàng Long", ign: "VN_CyberDragon", avatar: AVATARS.cyber, teamName: "Việt Nam", teamFlag: "https://flagcdn.com/w40/vn.png", score: null },
-      away: { name: "Phạm Quốc Bảo", ign: "Blitz_R9", avatar: AVATARS.blitz, teamName: "Brazil", teamFlag: "https://flagcdn.com/w40/br.png", score: null }
+      id: "r16-2",
+      roundName: "VÒNG 16 - TRẬN 2",
+      home: { name: "Lê Hoàng Long", ign: "VN_CyberDragon", avatar: AVATARS.cyber, teamName: "Việt Nam", teamFlag: "https://flagcdn.com/w40/vn.png", score: null, formation: "4-1-2-1-2", squad: buildSampleSquad("4-1-2-1-2") },
+      away: { name: "Phạm Quốc Bảo", ign: "Blitz_R9", avatar: AVATARS.blitz, teamName: "Brazil", teamFlag: "https://flagcdn.com/w40/br.png", score: null, formation: "4-2-3-1", squad: buildSampleSquad("4-2-3-1") }
     }
   },
   {
@@ -59,8 +65,10 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     type: "matchNode",
     position: { x: 0, y: OFFSET_Y + ROW_SPACING * 3.5 },
     data: {
-      home: { name: "Đặng Tuấn Anh", ign: "CR7_KingGamer", avatar: AVATARS.cr7, teamName: "Bồ Đào Nha", teamFlag: "https://flagcdn.com/w40/pt.png", score: null },
-      away: { name: "Ngô Pep Pro", ign: "Coach_PepPro", avatar: AVATARS.pep, teamName: "Tây Ban Nha", teamFlag: "https://flagcdn.com/w40/es.png", score: null }
+      id: "r16-3",
+      roundName: "VÒNG 16 - TRẬN 3",
+      home: { name: "Đặng Tuấn Anh", ign: "CR7_KingGamer", avatar: AVATARS.cr7, teamName: "Bồ Đào Nha", teamFlag: "https://flagcdn.com/w40/pt.png", score: null, formation: "4-3-3", squad: buildSampleSquad("4-3-3") },
+      away: { name: "Ngô Pep Pro", ign: "Coach_PepPro", avatar: AVATARS.pep, teamName: "Tây Ban Nha", teamFlag: "https://flagcdn.com/w40/es.png", score: null, formation: "3-5-2", squad: buildSampleSquad("3-5-2") }
     }
   },
   {
@@ -68,8 +76,10 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     type: "matchNode",
     position: { x: 0, y: OFFSET_Y + ROW_SPACING * 5 },
     data: {
-      home: { name: "Vũ Shadow", ign: "Shadow_FC4", avatar: AVATARS.shadow, teamName: "Pháp", teamFlag: "https://flagcdn.com/w40/fr.png", score: null },
-      away: { name: "Bùi Leo Messi", ign: "LM10_GOAT", avatar: AVATARS.lm10, teamName: "Argentina", teamFlag: "https://flagcdn.com/w40/ar.png", score: null }
+      id: "r16-4",
+      roundName: "VÒNG 16 - TRẬN 4",
+      home: { name: "Vũ Shadow", ign: "Shadow_FC4", avatar: AVATARS.shadow, teamName: "Pháp", teamFlag: "https://flagcdn.com/w40/fr.png", score: null, formation: "5-2-1-2", squad: buildSampleSquad("5-2-1-2") },
+      away: { name: "Bùi Leo Messi", ign: "LM10_GOAT", avatar: AVATARS.lm10, teamName: "Argentina", teamFlag: "https://flagcdn.com/w40/ar.png", score: null, formation: "4-3-3", squad: buildSampleSquad("4-3-3") }
     }
   },
 
@@ -78,13 +88,13 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     id: "qf-1",
     type: "matchNode",
     position: { x: COLUMN_SPACING, y: OFFSET_Y + ROW_SPACING * 0.75 },
-    data: { home: null, away: null }
+    data: { id: "qf-1", roundName: "TỨ KẾT 1", home: null, away: null }
   },
   {
     id: "qf-2",
     type: "matchNode",
     position: { x: COLUMN_SPACING, y: OFFSET_Y + ROW_SPACING * 4.25 },
-    data: { home: null, away: null }
+    data: { id: "qf-2", roundName: "TỨ KẾT 2", home: null, away: null }
   },
 
   // ================= CỘT 3: BÁN KẾT (TRÁI) =================
@@ -92,7 +102,7 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     id: "sf-1",
     type: "matchNode",
     position: { x: COLUMN_SPACING * 2, y: OFFSET_Y + ROW_SPACING * 2.5 },
-    data: { home: null, away: null }
+    data: { id: "sf-1", roundName: "BÁN KẾT 1", home: null, away: null }
   },
 
   // ================= CỘT 4: CHUNG KẾT (TRUNG TÂM) =================
@@ -100,13 +110,13 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     id: "gf-1",
     type: "matchNode",
     position: { x: COLUMN_SPACING * 3, y: OFFSET_Y + ROW_SPACING * 1.5 },
-    data: { home: null, away: null, isGrandFinal: true }
+    data: { id: "gf-1", roundName: "TRẬN CHUNG KẾT (GRAND FINAL)", home: null, away: null, isGrandFinal: true }
   },
   {
     id: "bf-1",
     type: "matchNode",
     position: { x: COLUMN_SPACING * 3, y: OFFSET_Y + ROW_SPACING * 3.5 },
-    data: { home: null, away: null, isBronzeFinal: true }
+    data: { id: "bf-1", roundName: "TRẬN TRANH HẠNG BA", home: null, away: null, isBronzeFinal: true }
   },
 
   // ================= CỘT 5: BÁN KẾT (PHẢI) =================
@@ -114,7 +124,7 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     id: "sf-2",
     type: "matchNode",
     position: { x: COLUMN_SPACING * 4, y: OFFSET_Y + ROW_SPACING * 2.5 },
-    data: { home: null, away: null }
+    data: { id: "sf-2", roundName: "BÁN KẾT 2", home: null, away: null }
   },
 
   // ================= CỘT 6: TỨ KẾT (PHẢI) =================
@@ -122,13 +132,13 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     id: "qf-3",
     type: "matchNode",
     position: { x: COLUMN_SPACING * 5, y: OFFSET_Y + ROW_SPACING * 0.75 },
-    data: { home: null, away: null }
+    data: { id: "qf-3", roundName: "TỨ KẾT 3", home: null, away: null }
   },
   {
     id: "qf-4",
     type: "matchNode",
     position: { x: COLUMN_SPACING * 5, y: OFFSET_Y + ROW_SPACING * 4.25 },
-    data: { home: null, away: null }
+    data: { id: "qf-4", roundName: "TỨ KẾT 4", home: null, away: null }
   },
 
   // ================= CỘT 7: VÒNG 16 (PHẢI) =================
@@ -137,8 +147,10 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     type: "matchNode",
     position: { x: COLUMN_SPACING * 6, y: OFFSET_Y },
     data: {
-      home: { name: "Hoàng Cyber", ign: "CyberStriker", avatar: AVATARS.striker, teamName: "Anh", teamFlag: "https://flagcdn.com/w40/gb-eng.png", score: null },
-      away: { name: "Phan Viper", ign: "ViperKing", avatar: AVATARS.viper, teamName: "Hà Lan", teamFlag: "https://flagcdn.com/w40/nl.png", score: null }
+      id: "r16-5",
+      roundName: "VÒNG 16 - TRẬN 5",
+      home: { name: "Hoàng Cyber", ign: "CyberStriker", avatar: AVATARS.striker, teamName: "Anh", teamFlag: "https://flagcdn.com/w40/gb-eng.png", score: null, formation: "4-2-3-1", squad: buildSampleSquad("4-2-3-1") },
+      away: { name: "Phan Viper", ign: "ViperKing", avatar: AVATARS.viper, teamName: "Hà Lan", teamFlag: "https://flagcdn.com/w40/nl.png", score: null, formation: "4-3-3", squad: buildSampleSquad("4-3-3") }
     }
   },
   {
@@ -146,21 +158,23 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     type: "matchNode",
     position: { x: COLUMN_SPACING * 6, y: OFFSET_Y + ROW_SPACING * 1.5 },
     data: {
-      home: { name: "Đỗ Dragon", ign: "DragonEye", avatar: AVATARS.dragon, teamName: "Nhật Bản", teamFlag: "https://flagcdn.com/w40/jp.png", score: null },
-      away: { name: "Trịnh Kaiser", ign: "Kaiser_FC", avatar: AVATARS.kaiser, teamName: "Hàn Quốc", teamFlag: "https://flagcdn.com/w40/kr.png", score: null }
+      id: "r16-6",
+      roundName: "VÒNG 16 - TRẬN 6",
+      home: { name: "Đỗ Dragon", ign: "DragonEye", avatar: AVATARS.dragon, teamName: "Nhật Bản", teamFlag: "https://flagcdn.com/w40/jp.png", score: null, formation: "4-1-2-1-2", squad: buildSampleSquad("4-1-2-1-2") },
+      away: { name: "Trịnh Kaiser", ign: "Kaiser_FC", avatar: AVATARS.kaiser, teamName: "Hàn Quốc", teamFlag: "https://flagcdn.com/w40/kr.png", score: null, formation: "3-5-2", squad: buildSampleSquad("3-5-2") }
     }
   },
   {
     id: "r16-7",
     type: "matchNode",
     position: { x: COLUMN_SPACING * 6, y: OFFSET_Y + ROW_SPACING * 3.5 },
-    data: { home: null, away: null }
+    data: { id: "r16-7", roundName: "VÒNG 16 - TRẬN 7", home: null, away: null }
   },
   {
     id: "r16-8",
     type: "matchNode",
     position: { x: COLUMN_SPACING * 6, y: OFFSET_Y + ROW_SPACING * 5 },
-    data: { home: null, away: null }
+    data: { id: "r16-8", roundName: "VÒNG 16 - TRẬN 8", home: null, away: null }
   }
 ];
 
@@ -301,14 +315,26 @@ interface ReactFlowBracketProps {
   onNodesChange: OnNodesChange;
   edges?: Edge[];
   registeredCount?: number;
+  onSelectMatch?: (matchData: MatchNodeData) => void;
 }
 
 export default function ReactFlowBracket({
   nodes,
   onNodesChange,
   edges = INITIAL_BRACKET_EDGES,
-  registeredCount = 12
+  registeredCount = 12,
+  onSelectMatch
 }: ReactFlowBracketProps) {
+  const formattedNodes = useMemo(() => {
+    return nodes.map((node) => ({
+      ...node,
+      data: {
+        ...node.data,
+        onSelectMatch
+      }
+    }));
+  }, [nodes, onSelectMatch]);
+
   return (
     <div className="relative w-full h-[780px] bg-[#070913] flex flex-col">
 
@@ -326,13 +352,14 @@ export default function ReactFlowBracket({
       {/* React Flow Viewport Canvas */}
       <div className="flex-1 w-full h-full">
         <ReactFlow
-          nodes={nodes}
+          nodes={formattedNodes}
           edges={edges}
           onNodesChange={onNodesChange}
           nodeTypes={nodeTypes}
           nodesDraggable={false}
           nodesConnectable={false}
-          elementsSelectable={false}
+          elementsSelectable={true}
+          onNodeClick={(_event, node) => onSelectMatch?.(node.data as MatchNodeData)}
           zoomOnScroll={false}
           zoomOnPinch={false}
           zoomOnDoubleClick={false}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trophy, User, Gamepad2, Flag, Check, Sparkles } from "lucide-react";
+import { X, Trophy, User, Gamepad2, Flag, Check, Sparkles, LayoutGrid } from "lucide-react";
+import { FormationType } from "@/types/tournament";
 
 export interface NationalTeam {
   id: string;
@@ -29,10 +30,19 @@ export const WORLD_CUP_TEAMS: NationalTeam[] = [
   { id: "usa", name: "Mỹ", code: "USA", flag: "https://flagcdn.com/w40/us.png" },
 ];
 
+export const AVAILABLE_FORMATIONS: { id: FormationType; label: string; desc: string }[] = [
+  { id: "4-2-3-1", label: "4-2-3-1", desc: "Cân bằng & Kiểm soát" },
+  { id: "4-3-3", label: "4-3-3", desc: "Tấn công 3 tiền đạo" },
+  { id: "4-1-2-1-2", label: "4-1-2-1-2", desc: "Tấn công trung lộ" },
+  { id: "3-5-2", label: "3-5-2", desc: "Kiểm soát tuyến giữa" },
+  { id: "5-2-1-2", label: "5-2-1-2", desc: "Phòng ngự phản công" },
+];
+
 export interface PlayerRegistrationForm {
   fullName: string;
   ign: string;
   selectedTeam: NationalTeam;
+  formation: FormationType;
 }
 
 interface RegisterModalProps {
@@ -45,6 +55,7 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
   const [fullName, setFullName] = useState("");
   const [ign, setIgn] = useState("");
   const [selectedTeam, setSelectedTeam] = useState<NationalTeam>(WORLD_CUP_TEAMS[0]);
+  const [formation, setFormation] = useState<FormationType>("4-2-3-1");
 
   if (!isOpen) return null;
 
@@ -56,6 +67,7 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
       fullName: fullName.trim(),
       ign: ign.trim(),
       selectedTeam,
+      formation,
     });
 
     setFullName("");
@@ -66,7 +78,7 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
       {/* Modal Dialog Container */}
-      <div className="relative w-full max-w-lg bg-[#0D111E] border border-[#1F263B] rounded-3xl p-6 shadow-2xl text-white flex flex-col gap-5">
+      <div className="relative w-full max-w-lg bg-[#0D111E] border border-[#1F263B] rounded-3xl p-6 shadow-2xl text-white flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#1F263B] pb-4">
@@ -125,7 +137,7 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
           <div>
             <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider block mb-2 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <Flag className="w-3.5 h-3.5 text-purple-400" /> Chọn Đội Tuyển World Cup
+                <Flag className="w-3.5 h-3.5 text-purple-400" /> Chọn Đội Tuyển Đăng Ký
               </span>
               <span className="text-[11px] font-bold text-purple-300">
                 Đã chọn: {selectedTeam.name} ({selectedTeam.code})
@@ -133,7 +145,7 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
             </label>
 
             {/* Grid of National Teams */}
-            <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto p-2 bg-[#090C16] border border-[#1A2135] rounded-xl">
+            <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto p-2 bg-[#090C16] border border-[#1A2135] rounded-xl">
               {WORLD_CUP_TEAMS.map((team) => {
                 const isSelected = selectedTeam.id === team.id;
 
@@ -152,6 +164,39 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
                     <span className="text-[10px] font-bold truncate w-full text-center">
                       {team.name}
                     </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 4. Chọn Đội Hình Thi Đấu (Sơ Đồ Chiến Thuật) */}
+          <div>
+            <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider block mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <LayoutGrid className="w-3.5 h-3.5 text-purple-400" /> Chọn Đội Hình Thi Đấu (Sơ Đồ Chiến Thuật) <span className="text-purple-400">*</span>
+              </span>
+              <span className="text-[11px] font-bold text-purple-300">
+                {formation}
+              </span>
+            </label>
+
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+              {AVAILABLE_FORMATIONS.map((fmt) => {
+                const isSelected = formation === fmt.id;
+                return (
+                  <button
+                    key={fmt.id}
+                    type="button"
+                    onClick={() => setFormation(fmt.id)}
+                    className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition text-center ${
+                      isSelected
+                        ? "bg-[#251A3E] border-[#7C3AED] text-white shadow-[0_0_12px_rgba(124,58,237,0.4)]"
+                        : "bg-[#121727] border-[#1E263A] text-slate-400 hover:text-white hover:border-slate-600"
+                    }`}
+                  >
+                    <span className="text-xs font-black tracking-tight">{fmt.label}</span>
+                    <span className="text-[9px] text-slate-400 leading-tight line-clamp-1">{fmt.desc}</span>
                   </button>
                 );
               })}

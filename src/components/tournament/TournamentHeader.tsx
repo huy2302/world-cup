@@ -16,10 +16,10 @@ export default function TournamentHeader({ onZoomIn, onZoomOut, onResetZoom, onO
 
   return (
     <div className="flex flex-col gap-3.5 pb-2 border-b border-[#161D2F] mb-3 select-none">
-      
+
       {/* Top Row: Title & Register CTA Button */}
       <div className="flex items-center justify-between">
-        
+
         {/* Title & Live Status Tag */}
         <div className="flex flex-col gap-1">
           <h1 className="text-xl font-extrabold text-white tracking-tight">
@@ -57,64 +57,6 @@ export default function TournamentHeader({ onZoomIn, onZoomOut, onResetZoom, onO
 
       </div>
 
-      {/* Bottom Row: Sub-Tabs & Zoom Controls */}
-      <div className="flex items-center justify-between pt-1">
-        
-        {/* Sub Navigation Tabs */}
-        <div className="flex items-center gap-6">
-          {subTabs.map((tab) => {
-            const isActive = activeTab === tab;
-
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`relative pb-2 text-xs font-black uppercase tracking-wider transition ${
-                  isActive ? "text-white" : "text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                <span>{tab}</span>
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7C3AED] shadow-[0_0_8px_#7c3aed]"></span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Zoom Control Toolbar Pill */}
-        <div className="bg-[#0F1322] border border-[#1D263B] p-1 rounded-xl flex items-center gap-0.5">
-          <button
-            onClick={onResetZoom}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1D263B] transition"
-            title="Fullscreen"
-          >
-            <Maximize2 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={onZoomOut}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1D263B] transition"
-            title="Zoom Out"
-          >
-            <Minus className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={onZoomIn}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1D263B] transition"
-            title="Zoom In"
-          >
-            <Plus className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={onResetZoom}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1D263B] transition"
-            title="Reset"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-      </div>
     </div>
   );
 }

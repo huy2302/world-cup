@@ -3,6 +3,8 @@
 import { Handle, Position } from "@xyflow/react";
 import { Crown, UserX } from "lucide-react";
 
+import { FormationType, TacticalSquad } from "@/types/tournament";
+
 export interface CompetitorData {
   name: string;
   ign?: string;
@@ -11,17 +13,23 @@ export interface CompetitorData {
   teamFlag?: string;
   score?: number | null;
   isWinner?: boolean;
+  formation?: FormationType;
+  squad?: TacticalSquad;
 }
 
 export interface MatchNodeData {
+  id?: string;
+  roundName?: string;
   home?: CompetitorData | null;
   away?: CompetitorData | null;
   isGrandFinal?: boolean;
   isBronzeFinal?: boolean;
+  onSelectCompetitor?: (competitor: CompetitorData) => void;
+  onSelectMatch?: (matchData: MatchNodeData) => void;
 }
 
 export default function MatchNode({ data }: { data: MatchNodeData }) {
-  const { home, away, isGrandFinal, isBronzeFinal } = data;
+  const { home, away, isGrandFinal, isBronzeFinal, onSelectCompetitor, onSelectMatch } = data;
 
   const renderRow = (player?: CompetitorData | null) => {
     if (!player || !player.name) {
@@ -43,12 +51,16 @@ export default function MatchNode({ data }: { data: MatchNodeData }) {
     }
 
     return (
-      <div className={`flex items-center justify-between p-2 rounded-lg transition ${
-        player.isWinner ? "bg-[#1C1F33] border border-[#7C3AED]/60" : "bg-[#0A0E1A]"
-      }`}>
+      <div
+        className={`flex items-center justify-between p-2 rounded-lg transition-all duration-200 ${
+          player.isWinner
+            ? "bg-[#1C1F33] border border-[#7C3AED]/60"
+            : "bg-[#0A0E1A] border border-transparent group-hover:bg-[#161D2F]"
+        }`}
+      >
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Clean Player Avatar */}
-          <div className="w-7 h-7 rounded-full overflow-hidden border border-slate-700 shrink-0 bg-slate-900">
+          <div className="w-7 h-7 rounded-full overflow-hidden border border-slate-700 shrink-0 bg-slate-900 transition-colors">
             {player.avatar ? (
               <img src={player.avatar} alt={player.name} className="w-full h-full object-cover" />
             ) : (
@@ -60,7 +72,7 @@ export default function MatchNode({ data }: { data: MatchNodeData }) {
 
           {/* IGN + National Flag */}
           <div className="flex items-center gap-2 min-w-0">
-            <span className={`text-xs font-bold truncate ${player.isWinner ? "text-white font-extrabold" : "text-slate-200"}`}>
+            <span className={`text-xs font-bold truncate transition-colors ${player.isWinner ? "text-white font-extrabold" : "text-slate-200"}`}>
               {player.ign || player.name}
             </span>
             {player.teamFlag && (
@@ -77,7 +89,7 @@ export default function MatchNode({ data }: { data: MatchNodeData }) {
         <span className={`px-2.5 py-0.5 rounded font-mono text-xs font-black ${
           player.isWinner
             ? "bg-[#7C3AED] text-white shadow-[0_0_10px_rgba(124,58,237,0.7)]"
-            : "bg-[#151B2C] text-slate-400"
+            : "bg-[#151B2C] text-slate-400 group-hover:text-white"
         }`}>
           {player.score !== undefined && player.score !== null ? player.score : "-"}
         </span>
@@ -86,13 +98,17 @@ export default function MatchNode({ data }: { data: MatchNodeData }) {
   };
 
   return (
-    <div className={`relative w-[240px] rounded-xl p-2.5 select-none font-sans transition-all duration-300 ${
-      isGrandFinal
-        ? "grand-final-node shadow-[0_0_20px_rgba(124,58,237,0.5)] border-2 border-purple-500"
-        : isBronzeFinal
-        ? "bg-[#16120D] border border-amber-800/60 shadow-lg"
-        : "bg-[#131827] border border-[#1F2638] hover:border-[#7C3AED]/70 shadow-xl"
-    }`}>
+    <div
+      onClick={() => onSelectMatch?.(data)}
+      title="Click để xem thông tin cặp đấu"
+      className={`relative w-[240px] rounded-xl p-2.5 select-none font-sans cursor-pointer transition-all duration-300 hover:scale-105 hover:border-purple-400 hover:shadow-[0_0_20px_rgba(124,58,237,0.6)] group ${
+        isGrandFinal
+          ? "grand-final-node shadow-[0_0_20px_rgba(124,58,237,0.5)] border-2 border-purple-500"
+          : isBronzeFinal
+          ? "bg-[#16120D] border border-amber-800/60 shadow-lg"
+          : "bg-[#131827] border border-[#1F2638] shadow-xl"
+      }`}
+    >
       
       {/* Handles for both Left and Right flow directions */}
       <Handle type="target" position={Position.Left} id="target-left" className="!bg-[#6D28D9] !w-2.5 !h-2.5 !border-0" />

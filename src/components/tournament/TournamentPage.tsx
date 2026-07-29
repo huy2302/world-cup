@@ -6,6 +6,10 @@ import TournamentHeader from "./TournamentHeader";
 import ReactFlowBracket, { INITIAL_BRACKET_NODES } from "../bracket/ReactFlowBracket";
 import RightSidebar, { RegisteredPlayer } from "./RightSidebar";
 import RegisterModal, { PlayerRegistrationForm } from "../dialogs/RegisterModal";
+import PlayerDialog, { PlayerModalData } from "../dialogs/PlayerDialog";
+import MatchDialog from "../dialogs/MatchDialog";
+import { CompetitorData, MatchNodeData } from "../bracket/MatchNode";
+import { buildSampleSquad } from "@/data/mockTournament";
 
 const INITIAL_REGISTERED_PLAYERS: RegisteredPlayer[] = [
   { name: "FCPro_HuyDev", clubLogo: "https://flagcdn.com/w40/es.png" },
@@ -26,6 +30,8 @@ export default function TournamentPage() {
   const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_BRACKET_NODES);
   const [registeredPlayers, setRegisteredPlayers] = useState<RegisteredPlayer[]>(INITIAL_REGISTERED_PLAYERS);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [selectedCompetitor, setSelectedCompetitor] = useState<CompetitorData | null>(null);
+  const [selectedMatch, setSelectedMatch] = useState<MatchNodeData | null>(null);
 
   const handleRegisterSubmit = (form: PlayerRegistrationForm) => {
     // 1. Add to Registered Players list for RightSidebar
@@ -41,6 +47,8 @@ export default function TournamentPage() {
       const copy = [...prevNodes];
       let updated = false;
 
+      const playerSquad = buildSampleSquad(form.formation);
+
       for (let i = 0; i < 8; i++) {
         const node = copy[i];
         if (!node) continue;
@@ -53,7 +61,9 @@ export default function TournamentPage() {
             teamName: form.selectedTeam.name,
             teamFlag: form.selectedTeam.flag,
             avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${form.ign}`,
-            score: null
+            score: null,
+            formation: form.formation,
+            squad: playerSquad,
           };
           copy[i] = { ...node, data };
           updated = true;
@@ -65,7 +75,9 @@ export default function TournamentPage() {
             teamName: form.selectedTeam.name,
             teamFlag: form.selectedTeam.flag,
             avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${form.ign}`,
-            score: null
+            score: null,
+            formation: form.formation,
+            squad: playerSquad,
           };
           copy[i] = { ...node, data };
           updated = true;
@@ -92,6 +104,7 @@ export default function TournamentPage() {
               nodes={nodes}
               onNodesChange={onNodesChange}
               registeredCount={registeredPlayers.length}
+              onSelectMatch={(matchData) => setSelectedMatch(matchData)}
             />
           </div>
 
@@ -107,6 +120,26 @@ export default function TournamentPage() {
         onClose={() => setIsRegisterOpen(false)}
         onSubmit={handleRegisterSubmit}
       />
+
+      {/* Match Details Modal (Clicking any node) */}
+      {selectedMatch && (
+        <MatchDialog
+          matchData={selectedMatch}
+          onClose={() => setSelectedMatch(null)}
+          onOpenRegister={() => {
+            setSelectedMatch(null);
+            setIsRegisterOpen(true);
+          }}
+        />
+      )}
+
+      {/* Player Details & Lineup Pitch Modal */}
+      {selectedCompetitor && (
+        <PlayerDialog
+          competitor={selectedCompetitor as PlayerModalData}
+          onClose={() => setSelectedCompetitor(null)}
+        />
+      )}
 
     </div>
   );
