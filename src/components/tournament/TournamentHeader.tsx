@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trophy, FileText } from "lucide-react";
+import { Trophy, FileText, Dices, Users, MessageSquare } from "lucide-react";
 
 interface TournamentHeaderProps {
   onZoomIn?: () => void;
@@ -9,9 +9,10 @@ interface TournamentHeaderProps {
   onResetZoom?: () => void;
   onOpenRegister?: () => void;
   onOpenRules?: () => void;
+  onOpenDraw?: () => void;
 }
 
-export default function TournamentHeader({ onOpenRegister, onOpenRules }: TournamentHeaderProps) {
+export default function TournamentHeader({ onOpenRegister, onOpenRules, onOpenDraw }: TournamentHeaderProps) {
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -92,6 +93,28 @@ export default function TournamentHeader({ onOpenRegister, onOpenRules }: Tourna
             </span>
           </div>
 
+          {/* Group Facebook Link Button */}
+          <a
+            href="https://www.facebook.com/groups/911390207964785"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-blue-900/80 hover:bg-blue-800 text-white border border-blue-500/50 hover:border-blue-400 px-3.5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition hover:scale-105 active:scale-95 cursor-pointer shadow-lg shadow-blue-950/40"
+          >
+            <Users className="w-4 h-4 text-blue-300" />
+            <span>Group FB</span>
+          </a>
+
+          {/* Discord Server Link Button */}
+          <a
+            href="https://discord.gg/7uxP3fTED"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#5865F2]/80 hover:bg-[#4752C4] text-white border border-[#5865F2]/50 hover:border-indigo-400 px-3.5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition hover:scale-105 active:scale-95 cursor-pointer shadow-lg shadow-indigo-950/40"
+          >
+            <MessageSquare className="w-4 h-4 text-indigo-200" />
+            <span>Discord</span>
+          </a>
+
           {/* Tournament Rules Button */}
           <button
             onClick={onOpenRules}
@@ -99,6 +122,15 @@ export default function TournamentHeader({ onOpenRegister, onOpenRules }: Tourna
           >
             <FileText className="w-4 h-4 text-cyan-400" />
             <span>Thể thức giải đấu</span>
+          </button>
+
+          {/* Admin Draw Button */}
+          <button
+            onClick={onOpenDraw}
+            className="bg-[#1A1230] hover:bg-purple-900/80 text-amber-300 border border-amber-500/40 hover:border-amber-400 px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition hover:scale-105 active:scale-95 cursor-pointer shadow-lg shadow-amber-950/40"
+          >
+            <Dices className="w-4 h-4 text-amber-400" />
+            <span>Quay giải (Admin)</span>
           </button>
 
           {/* Register Button */}

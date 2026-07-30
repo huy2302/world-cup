@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, ExternalLink, Share2 } from "lucide-react";
+import { Users, ExternalLink, Share2, Trophy, LayoutGrid, MessageSquare } from "lucide-react";
 
 export interface RegisteredPlayer {
   name: string;
@@ -21,6 +21,7 @@ interface RightSidebarProps {
   registeredPlayers?: RegisteredPlayer[];
   tournamentInfo?: TournamentInfo;
   onOpenPlayersDrawer?: () => void;
+  onOpenGroupSelect?: () => void;
 }
 
 const DEFAULT_PLAYERS: RegisteredPlayer[] = [
@@ -89,77 +90,127 @@ const DEFAULT_PLAYERS: RegisteredPlayer[] = [
 export default function RightSidebar({
   registeredPlayers = DEFAULT_PLAYERS,
   tournamentInfo,
-  onOpenPlayersDrawer
+  onOpenPlayersDrawer,
+  onOpenGroupSelect
 }: RightSidebarProps) {
   const count = registeredPlayers.length;
 
   const organizer = tournamentInfo?.organizer || "FC Online Trung Quốc (China)";
   const prizePool = tournamentInfo?.prizePool || "100 QQ";
-  const type = tournamentInfo?.type || "Single Elimination";
-  const stage = tournamentInfo?.stage || "Round of 16 (Knockout)";
+  const type = tournamentInfo?.type || "4 Bảng (12 Đội) • Top 1 Vào Bán Kết";
+  const stage = tournamentInfo?.stage || "Vòng Bảng -> Bán Kết -> Chung Kết";
 
-  const completedMatches = tournamentInfo?.completedMatches ?? 4;
-  const totalMatches = tournamentInfo?.totalMatches ?? 7;
+  const completedMatches = tournamentInfo?.completedMatches ?? 0;
+  const totalMatches = tournamentInfo?.totalMatches ?? 16;
   const remainingMatches = Math.max(0, totalMatches - completedMatches);
   const progressPercent = totalMatches > 0 ? Math.round((completedMatches / totalMatches) * 100) : 0;
 
   return (
-    <aside className="w-full xl:w-[320px] flex flex-col gap-4 select-none shrink-0">
-      
-      {/* Card 1: TOURNAMENT INFO */}
-      <div className="bg-[#0F1322] border border-[#1D263B] rounded-2xl p-5 sm:p-6 flex flex-col gap-4 shadow-lg">
-        <h3 className="text-[11px] font-black text-white uppercase tracking-wider border-b border-[#1D263B] pb-3">
-          TOURNAMENT INFO
+    <aside className="w-full xl:w-[340px] flex flex-col gap-4 select-none shrink-0 max-h-[calc(100vh-100px)] overflow-y-auto pr-1 text-slate-200 custom-scrollbar sticky top-4">
+
+      {/* TOP CARD 1: CỘNG ĐỒNG FACEBOOK & DISCORD (NỔI BẬT HÀNG ĐẦU) */}
+      <div className="bg-gradient-to-r from-blue-950/90 via-[#101B3B] to-indigo-950/90 border-2 border-indigo-500/60 rounded-2xl p-4 flex flex-col gap-3 shadow-[0_0_25px_rgba(99,102,241,0.4)]">
+        <div className="flex items-center justify-between border-b border-indigo-500/40 pb-2">
+          <h3 className="text-[11px] font-black text-white uppercase tracking-wider flex items-center gap-2">
+            <Users className="w-4 h-4 text-indigo-400 shrink-0" />
+            <span>KÊNH CỘNG ĐỒNG CHÍNH THỨC</span>
+          </h3>
+        </div>
+
+        <p className="text-[11px] text-indigo-100 font-medium leading-relaxed">
+          Tham gia kênh Facebook & Discord FC Online Trung Quốc để giao hữu, nhận thông báo trận đấu & cập nhật kết quả!
+        </p>
+
+        <div className="flex flex-col gap-2 pt-1">
+          {/* Facebook Group Link */}
+          <a
+            href="https://www.facebook.com/groups/911390207964785"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-2.5 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs flex items-center justify-between transition-all shadow-md shadow-blue-600/30 hover:scale-[1.02] active:scale-95 cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <Share2 className="w-4 h-4 text-white" />
+              <span>Group Facebook FC Online</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 opacity-90" />
+          </a>
+
+          {/* Discord Server Link */}
+          <a
+            href="https://discord.gg/7uxP3fTED"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-2.5 px-3.5 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-extrabold text-xs flex items-center justify-between transition-all shadow-md shadow-[#5865F2]/40 hover:scale-[1.02] active:scale-95 cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-white" />
+              <span>Server Discord FC Online</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 opacity-90" />
+          </a>
+        </div>
+      </div>
+
+      {/* Card 2: TOURNAMENT INFO */}
+      <div className="bg-[#0F1322] border border-[#1D263B] rounded-2xl p-5 flex flex-col gap-3.5 shadow-lg">
+        <h3 className="text-[11px] font-black text-white uppercase tracking-wider border-b border-[#1D263B] pb-3 flex items-center justify-between">
+          <span>THÔNG TIN GIẢI ĐẤU</span>
+          <span className="px-2 py-0.5 rounded text-[9px] font-black bg-purple-950 text-purple-300 border border-purple-800">
+            12 ĐỘI
+          </span>
         </h3>
 
-        <div className="flex flex-col gap-3 text-xs font-medium py-1">
-          <div className="flex justify-between items-center py-1.5 px-2.5 rounded-xl bg-[#070913]/50 border border-[#161D2F]">
-            <span className="text-slate-400">Tournament Type</span>
-            <span className="font-bold text-white">{type}</span>
+        <div className="flex flex-col gap-2.5 text-xs font-medium">
+          <div className="flex justify-between items-center py-1.5 px-2.5 rounded-xl bg-[#070913]/60 border border-[#161D2F]">
+            <span className="text-slate-400 text-[11px]">Thể thức</span>
+            <span className="font-bold text-white text-[11px] text-right truncate max-w-[170px]">{type}</span>
           </div>
-          <div className="flex justify-between items-center py-1.5 px-2.5 rounded-xl bg-[#070913]/50 border border-[#161D2F]">
-            <span className="text-slate-400">Participants</span>
-            <span className="font-bold text-[#00f0ff] font-mono">{count} / 16</span>
+          <div className="flex justify-between items-center py-1.5 px-2.5 rounded-xl bg-[#070913]/60 border border-[#161D2F]">
+            <span className="text-slate-400 text-[11px]">Số VĐV đăng ký</span>
+            <span className="font-bold text-[#00f0ff] font-mono text-[11px]">{count} / 12 Đội</span>
           </div>
-          <div className="flex justify-between items-center py-1.5 px-2.5 rounded-xl bg-[#070913]/50 border border-[#161D2F]">
-            <span className="text-slate-400">Current Stage</span>
-            <span className="font-bold text-amber-400">{stage}</span>
+          <div className="flex justify-between items-center py-1.5 px-2.5 rounded-xl bg-[#070913]/60 border border-[#161D2F]">
+            <span className="text-slate-400 text-[11px]">Giai đoạn</span>
+            <span className="font-bold text-amber-400 text-[11px]">{stage}</span>
           </div>
-          <div className="flex justify-between items-center py-1.5 px-2.5 rounded-xl bg-[#070913]/50 border border-[#161D2F]">
-            <span className="text-slate-400">Prize Pool</span>
-            <span className="font-extrabold text-white font-mono">{prizePool}</span>
+          <div className="flex justify-between items-center py-1.5 px-2.5 rounded-xl bg-[#070913]/60 border border-[#161D2F]">
+            <span className="text-slate-400 text-[11px]">Giải thưởng</span>
+            <span className="font-extrabold text-white font-mono text-[11px]">{prizePool}</span>
           </div>
-          <div className="flex justify-between items-center py-1.5 px-2.5 rounded-xl bg-[#070913]/50 border border-[#161D2F]">
-            <span className="text-slate-400">Organizer</span>
-            <span className="font-bold text-white">{organizer}</span>
+          <div className="flex justify-between items-center py-1.5 px-2.5 rounded-xl bg-[#070913]/60 border border-[#161D2F]">
+            <span className="text-slate-400 text-[11px]">Ban Tổ Chức</span>
+            <span className="font-bold text-white text-[11px]">{organizer}</span>
           </div>
         </div>
       </div>
 
-      {/* Card 2: REGISTERED PLAYERS */}
-      <div className="bg-[#0F1322] border border-[#1D263B] rounded-2xl p-5 sm:p-6 flex flex-col gap-4 shadow-lg">
+      {/* Card 3: REGISTERED PLAYERS */}
+      <div className="bg-[#0F1322] border border-[#1D263B] rounded-2xl p-5 flex flex-col gap-3.5 shadow-lg">
         <div className="flex items-center justify-between border-b border-[#1D263B] pb-3">
           <h3 className="text-[11px] font-black text-white uppercase tracking-wider">
-            REGISTERED PLAYERS <span className="text-cyan-400 font-mono">({count}/16)</span>
+            DANH SÁCH VĐV ĐĂNG KÝ <span className="text-cyan-400 font-mono">({count})</span>
           </h3>
         </div>
 
         {/* Player List */}
-        <div className="flex flex-col gap-2.5 my-1 max-h-64 overflow-y-auto pr-1">
+        <div className="flex flex-col gap-2 my-0.5 max-h-60 overflow-y-auto pr-1">
           {registeredPlayers.map((player, idx) => (
-            <div key={`${player.name}-${idx}`} className="flex items-center justify-between py-1 px-2 rounded-lg hover:bg-[#161D2F]/60 transition-colors">
-              <div className="flex items-center gap-2.5">
+            <div key={`${player.name}-${idx}`} className="flex items-center justify-between py-1.5 px-2.5 rounded-xl bg-[#070913]/40 border border-[#141A2D] hover:bg-[#161D2F]/70 transition-colors">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <img
                   src={player.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"}
                   alt={player.name}
-                  className="w-7 h-7 rounded-full object-cover border border-[#232D44]"
+                  className="w-7 h-7 rounded-full object-cover border border-[#232D44] shrink-0"
                 />
-                <span className="text-xs font-bold text-slate-200">
+                <span className="text-xs font-bold text-slate-200 truncate">
                   {player.name}
                 </span>
               </div>
-              {player.clubLogo && (
-                <img src={player.clubLogo} alt="Team" className="w-4 h-3 object-cover rounded-sm border border-black/40" />
+              {player.clubLogo ? (
+                <img src={player.clubLogo} alt="Team" className="w-5 h-3.5 object-cover rounded-sm border border-black/50 shrink-0" />
+              ) : (
+                <span className="text-[10px] italic text-slate-500 font-medium">Chưa bốc</span>
               )}
             </div>
           ))}
@@ -168,24 +219,22 @@ export default function RightSidebar({
         {/* Bottom CTA Link */}
         <button
           onClick={onOpenPlayersDrawer}
-          className="w-full text-center text-xs font-extrabold text-[#A855F7] hover:text-white transition pt-2.5 border-t border-[#1D263B] cursor-pointer"
+          className="w-full text-center text-xs font-extrabold text-[#A855F7] hover:text-white transition pt-2 border-t border-[#1D263B] cursor-pointer"
         >
-          View All Players ({count})
+          Xem Toàn Bộ VĐV ({count}) ▶
         </button>
       </div>
 
-      {/* Card 3: TOURNAMENT PROGRESS */}
-      <div className="bg-[#0F1322] border border-[#1D263B] rounded-2xl p-5 sm:p-6 flex flex-col gap-4 shadow-lg">
+      {/* Card 4: TOURNAMENT PROGRESS */}
+      <div className="bg-[#0F1322] border border-[#1D263B] rounded-2xl p-5 flex flex-col gap-3.5 shadow-lg mb-4">
         <h3 className="text-[11px] font-black text-white uppercase tracking-wider border-b border-[#1D263B] pb-3">
-          TOURNAMENT PROGRESS
+          TIẾN ĐỘ GIẢI ĐẤU
         </h3>
 
         <div className="flex items-center justify-between gap-4 pt-1">
-          
           {/* Circular Donut Progress Ring */}
-          <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
+          <div className="relative w-20 h-20 flex items-center justify-center shrink-0">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-              {/* Background Ring */}
               <path
                 className="text-[#161D2F]"
                 strokeWidth="3.5"
@@ -193,7 +242,6 @@ export default function RightSidebar({
                 fill="none"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               />
-              {/* Purple Progress Arc */}
               <path
                 className="text-[#7C3AED]"
                 strokeDasharray={`${progressPercent}, 100`}
@@ -205,53 +253,27 @@ export default function RightSidebar({
               />
             </svg>
             <div className="absolute flex flex-col items-center leading-none text-center">
-              <span className="text-sm font-black text-white font-mono">{progressPercent}%</span>
-              <span className="text-[8px] font-bold text-slate-400 uppercase mt-0.5">COMPLETED</span>
+              <span className="text-xs font-black text-white font-mono">{progressPercent}%</span>
+              <span className="text-[7px] font-bold text-slate-400 uppercase mt-0.5">ĐÃ ĐẤU</span>
             </div>
           </div>
 
           {/* Right Stats Breakdown */}
-          <div className="flex flex-col gap-2.5 flex-1 text-xs font-medium">
+          <div className="flex flex-col gap-2 flex-1 text-xs font-medium">
             <div className="flex justify-between items-center">
-              <span className="text-slate-400 text-[11px]">Matches Total</span>
+              <span className="text-slate-400 text-[11px]">Tổng số trận</span>
               <span className="font-extrabold text-white font-mono">{totalMatches}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-400 text-[11px]">Completed</span>
+              <span className="text-slate-400 text-[11px]">Đã hoàn thành</span>
               <span className="font-extrabold text-emerald-400 font-mono">{completedMatches}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-400 text-[11px]">Remaining</span>
+              <span className="text-slate-400 text-[11px]">Còn lại</span>
               <span className="font-extrabold text-amber-400 font-mono">{remainingMatches}</span>
             </div>
           </div>
-
         </div>
-      </div>
-
-      {/* Card 4: FACEBOOK COMMUNITY GROUP */}
-      <div className="bg-[#0F1322] border border-[#1D263B] rounded-2xl p-5 sm:p-6 flex flex-col gap-3.5 shadow-lg">
-        <div className="flex items-center justify-between border-b border-[#1D263B] pb-3">
-          <h3 className="text-[11px] font-black text-white uppercase tracking-wider flex items-center gap-2">
-            <Users className="w-4 h-4 text-blue-400" />
-            GROUP FACEBOOK FCONLINE TRUNG QUỐC
-          </h3>
-        </div>
-
-        <p className="text-xs text-slate-300 font-medium leading-relaxed">
-          Tham gia cộng đồng Facebook chính thức để trao đổi, giao hữu và cập nhật thông tin giải đấu FC Online China mới nhất!
-        </p>
-
-        <a
-          href="https://www.facebook.com/groups/911390207964785"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-95 cursor-pointer"
-        >
-          <Share2 className="w-4 h-4" />
-          <span>Tham Gia Group Facebook</span>
-          <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-        </a>
       </div>
 
     </aside>

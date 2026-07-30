@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Swords, Trophy, User, Gamepad2, Flag, LayoutGrid, Sparkles, Cpu, UserPlus, Layers } from "lucide-react";
+import { X, Swords, Trophy, User, Gamepad2, Flag, LayoutGrid, Sparkles, Cpu, UserPlus, Layers, Edit2 } from "lucide-react";
 import { MatchNodeData } from "../bracket/MatchNode";
 import FootballPitch from "../squad/FootballPitch";
 import PlayerCardDialog from "./PlayerCardDialog";
@@ -12,9 +12,10 @@ interface MatchDialogProps {
   matchData: MatchNodeData | null;
   onClose: () => void;
   onOpenRegister?: () => void;
+  onOpenUpdateScore?: (match: any) => void;
 }
 
-export default function MatchDialog({ matchData, onClose, onOpenRegister }: MatchDialogProps) {
+export default function MatchDialog({ matchData, onClose, onOpenRegister, onOpenUpdateScore }: MatchDialogProps) {
   const [selectedCard, setSelectedCard] = useState<FootballPlayer | null>(null);
   const [viewMode, setViewMode] = useState<"all" | "pitches" | "comparison">("all");
 
@@ -309,25 +310,54 @@ export default function MatchDialog({ matchData, onClose, onOpenRegister }: Matc
 
         {/* 3. PINNED BOTTOM FOOTER */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 sm:px-6 sm:py-4 border-t border-[#1F263B] bg-[#0C0F1D] shrink-0 z-20">
-          {hasEmptySlot && onOpenRegister ? (
-            <button
-              onClick={onOpenRegister}
-              className="w-full sm:w-auto purple-glow-btn text-white px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition cursor-pointer shadow-[0_0_15px_rgba(168,85,247,0.5)]"
-            >
-              <UserPlus className="w-4 h-4" /> ĐĂNG KÝ VÀO VỊ TRÍ TRỐNG NÀY
-            </button>
-          ) : (
-            <div className="text-xs text-slate-400 italic">
-              Trận đấu nằm trong khuôn khổ FC Online World Cup Champions Cup 2026.
-            </div>
-          )}
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {hasEmptySlot && onOpenRegister ? (
+              <button
+                onClick={onOpenRegister}
+                className="w-full sm:w-auto purple-glow-btn text-white px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition cursor-pointer shadow-[0_0_15px_rgba(168,85,247,0.5)]"
+              >
+                <UserPlus className="w-4 h-4" /> ĐĂNG KÝ VÀO VỊ TRÍ TRỐNG NÀY
+              </button>
+            ) : (
+              <div className="text-xs text-slate-400 italic hidden sm:block">
+                Trận đấu nằm trong khuôn khổ FC Online World Cup Champions Cup 2026.
+              </div>
+            )}
+          </div>
 
-          <button
-            onClick={onClose}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl border border-[#232A3D] bg-[#131827] hover:bg-[#1C243B] text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer"
-          >
-            Đóng cửa sổ
-          </button>
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            {onOpenUpdateScore && home && away && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenUpdateScore({
+                    matchId: matchData.id,
+                    title: title,
+                    homeName: home.ign || home.name,
+                    homeFlag: home.teamFlag,
+                    homeTeamName: home.teamName,
+                    homeScore: home.score,
+                    awayName: away.ign || away.name,
+                    awayFlag: away.teamFlag,
+                    awayTeamName: away.teamName,
+                    awayScore: away.score,
+                    status: (matchData as any).status || "COMPLETED"
+                  });
+                }}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 text-xs font-extrabold flex items-center justify-center gap-2 transition cursor-pointer shadow-lg shadow-amber-950/40"
+              >
+                <Edit2 className="w-4 h-4 text-amber-400" />
+                <span>Cập Nhật Tỉ Số (Admin)</span>
+              </button>
+            )}
+
+            <button
+              onClick={onClose}
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl border border-[#232A3D] bg-[#131827] hover:bg-[#1C243B] text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer"
+            >
+              Đóng cửa sổ
+            </button>
+          </div>
         </div>
 
       </div>

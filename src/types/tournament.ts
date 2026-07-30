@@ -73,7 +73,32 @@ export interface Match {
   liveMinute?: string;
 }
 
-export type TournamentSize = 8 | 16 | 32 | 64;
+export interface GroupTeam {
+  id: string;
+  name: string;
+  ign?: string;
+  avatar?: string;
+  teamName?: string;
+  teamFlag?: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
+  isQualified?: boolean; // Rank 1 -> Vào Bán kết
+}
+
+export interface GroupStandingData {
+  groupId: string;
+  groupName: string; // e.g. "BẢNG A"
+  teams: GroupTeam[];
+  matches?: Match[];
+}
+
+export type TournamentSize = 8 | 12 | 16 | 32 | 64;
 
 export interface Tournament {
   id: string;
@@ -87,3 +112,4 @@ export interface Tournament {
   matches: Match[];
   registeredPlayers: Competitor[];
 }
+

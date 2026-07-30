@@ -9,11 +9,13 @@ import {
   OnNodesChange
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import MatchNode, { CompetitorData, MatchNodeData } from "./MatchNode";
+import MatchNode, { MatchNodeData } from "./MatchNode";
+import GroupNode, { GroupNodeData } from "./GroupNode";
 import { buildSampleSquad } from "@/data/mockTournament";
 
 const nodeTypes = {
-  matchNode: MatchNode
+  matchNode: MatchNode,
+  groupNode: GroupNode
 };
 
 export const AVATARS = {
@@ -31,209 +33,132 @@ export const AVATARS = {
   kaiser: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=200&q=80"
 };
 
-// Điều chỉnh khoảng cách giữa các cột và hàng
-const COLUMN_SPACING = 320; // Khoảng cách giữa các cột
-const ROW_SPACING = 120; // Khoảng cách giữa các hàng
-const OFFSET_Y = 40; // Dịch chuyển Y ban đầu
+// Flow coordinates spacing
+const COLUMN_SPACING = 340;
+const OFFSET_Y = 40;
 
 export const INITIAL_BRACKET_NODES: Node[] = [
-  // ================= CỘT 1: VÒNG 16 (TRÁI) =================
+  // ================= CỘT 1: VÒNG BẢNG A & B (TRÁI) =================
   {
-    id: "r16-1",
-    type: "matchNode",
+    id: "group-a",
+    type: "groupNode",
     position: { x: 0, y: OFFSET_Y },
     data: {
-      id: "r16-1",
-      roundName: "VÒNG 16 - TRẬN 1",
-      home: { name: "Nguyễn Văn Huy", ign: "FCPro_HuyDev", avatar: AVATARS.huydev, teamName: "Tây Ban Nha", teamFlag: "https://flagcdn.com/w40/es.png", score: null, formation: "4-2-3-1", squad: buildSampleSquad("4-2-3-1") },
-      away: { name: "Trần Minh Neuer", ign: "Neuer_Wall", avatar: AVATARS.neuer, teamName: "Đức", teamFlag: "https://flagcdn.com/w40/de.png", score: null, formation: "4-3-3", squad: buildSampleSquad("4-3-3") }
+      id: "group-a",
+      groupName: "BẢNG A",
+      teams: []
     }
   },
   {
-    id: "r16-2",
-    type: "matchNode",
-    position: { x: 0, y: OFFSET_Y + ROW_SPACING * 1.5 },
+    id: "group-b",
+    type: "groupNode",
+    position: { x: 0, y: OFFSET_Y + 310 },
     data: {
-      id: "r16-2",
-      roundName: "VÒNG 16 - TRẬN 2",
-      home: { name: "Lê Hoàng Long", ign: "VN_CyberDragon", avatar: AVATARS.cyber, teamName: "Việt Nam", teamFlag: "https://flagcdn.com/w40/vn.png", score: null, formation: "4-1-2-1-2", squad: buildSampleSquad("4-1-2-1-2") },
-      away: { name: "Phạm Quốc Bảo", ign: "Blitz_R9", avatar: AVATARS.blitz, teamName: "Brazil", teamFlag: "https://flagcdn.com/w40/br.png", score: null, formation: "4-2-3-1", squad: buildSampleSquad("4-2-3-1") }
-    }
-  },
-  {
-    id: "r16-3",
-    type: "matchNode",
-    position: { x: 0, y: OFFSET_Y + ROW_SPACING * 3.5 },
-    data: {
-      id: "r16-3",
-      roundName: "VÒNG 16 - TRẬN 3",
-      home: { name: "Đặng Tuấn Anh", ign: "CR7_KingGamer", avatar: AVATARS.cr7, teamName: "Bồ Đào Nha", teamFlag: "https://flagcdn.com/w40/pt.png", score: null, formation: "4-3-3", squad: buildSampleSquad("4-3-3") },
-      away: { name: "Ngô Pep Pro", ign: "Coach_PepPro", avatar: AVATARS.pep, teamName: "Tây Ban Nha", teamFlag: "https://flagcdn.com/w40/es.png", score: null, formation: "3-5-2", squad: buildSampleSquad("3-5-2") }
-    }
-  },
-  {
-    id: "r16-4",
-    type: "matchNode",
-    position: { x: 0, y: OFFSET_Y + ROW_SPACING * 5 },
-    data: {
-      id: "r16-4",
-      roundName: "VÒNG 16 - TRẬN 4",
-      home: { name: "Vũ Shadow", ign: "Shadow_FC4", avatar: AVATARS.shadow, teamName: "Pháp", teamFlag: "https://flagcdn.com/w40/fr.png", score: null, formation: "5-2-1-2", squad: buildSampleSquad("5-2-1-2") },
-      away: { name: "Bùi Leo Messi", ign: "LM10_GOAT", avatar: AVATARS.lm10, teamName: "Argentina", teamFlag: "https://flagcdn.com/w40/ar.png", score: null, formation: "4-3-3", squad: buildSampleSquad("4-3-3") }
+      id: "group-b",
+      groupName: "BẢNG B",
+      teams: []
     }
   },
 
-  // ================= CỘT 2: TỨ KẾT (TRÁI) =================
-  {
-    id: "qf-1",
-    type: "matchNode",
-    position: { x: COLUMN_SPACING, y: OFFSET_Y + ROW_SPACING * 0.75 },
-    data: { id: "qf-1", roundName: "TỨ KẾT 1", home: null, away: null }
-  },
-  {
-    id: "qf-2",
-    type: "matchNode",
-    position: { x: COLUMN_SPACING, y: OFFSET_Y + ROW_SPACING * 4.25 },
-    data: { id: "qf-2", roundName: "TỨ KẾT 2", home: null, away: null }
-  },
-
-  // ================= CỘT 3: BÁN KẾT (TRÁI) =================
+  // ================= CỘT 2: BÁN KẾT 1 (TRÁI) =================
   {
     id: "sf-1",
     type: "matchNode",
-    position: { x: COLUMN_SPACING * 2, y: OFFSET_Y + ROW_SPACING * 2.5 },
-    data: { id: "sf-1", roundName: "BÁN KẾT 1", home: null, away: null }
+    position: { x: COLUMN_SPACING, y: OFFSET_Y + 160 },
+    data: {
+      id: "sf-1",
+      roundName: "BÁN KẾT 1 (NHẤT A vs NHẤT B)",
+      home: null,
+      away: null
+    }
   },
 
-  // ================= CỘT 4: CHUNG KẾT (TRUNG TÂM) =================
+  // ================= CỘT 3: TRANH VÔ ĐỊCH & HẠNG 3 (TRUNG TÂM) =================
   {
     id: "gf-1",
     type: "matchNode",
-    position: { x: COLUMN_SPACING * 3, y: OFFSET_Y + ROW_SPACING * 1.5 },
-    data: { id: "gf-1", roundName: "TRẬN CHUNG KẾT (GRAND FINAL)", home: null, away: null, isGrandFinal: true }
+    position: { x: COLUMN_SPACING * 2, y: OFFSET_Y + 60 },
+    data: {
+      id: "gf-1",
+      roundName: "TRẬN CHUNG KẾT (GRAND FINAL)",
+      home: null,
+      away: null,
+      isGrandFinal: true
+    }
   },
   {
     id: "bf-1",
     type: "matchNode",
-    position: { x: COLUMN_SPACING * 3, y: OFFSET_Y + ROW_SPACING * 3.5 },
-    data: { id: "bf-1", roundName: "TRẬN TRANH HẠNG BA", home: null, away: null, isBronzeFinal: true }
+    position: { x: COLUMN_SPACING * 2, y: OFFSET_Y + 280 },
+    data: {
+      id: "bf-1",
+      roundName: "TRẬN TRANH HẠNG BA",
+      home: null,
+      away: null,
+      isBronzeFinal: true
+    }
   },
 
-  // ================= CỘT 5: BÁN KẾT (PHẢI) =================
+  // ================= CỘT 4: BÁN KẾT 2 (PHẢI) =================
   {
     id: "sf-2",
     type: "matchNode",
-    position: { x: COLUMN_SPACING * 4, y: OFFSET_Y + ROW_SPACING * 2.5 },
-    data: { id: "sf-2", roundName: "BÁN KẾT 2", home: null, away: null }
-  },
-
-  // ================= CỘT 6: TỨ KẾT (PHẢI) =================
-  {
-    id: "qf-3",
-    type: "matchNode",
-    position: { x: COLUMN_SPACING * 5, y: OFFSET_Y + ROW_SPACING * 0.75 },
-    data: { id: "qf-3", roundName: "TỨ KẾT 3", home: null, away: null }
-  },
-  {
-    id: "qf-4",
-    type: "matchNode",
-    position: { x: COLUMN_SPACING * 5, y: OFFSET_Y + ROW_SPACING * 4.25 },
-    data: { id: "qf-4", roundName: "TỨ KẾT 4", home: null, away: null }
-  },
-
-  // ================= CỘT 7: VÒNG 16 (PHẢI) =================
-  {
-    id: "r16-5",
-    type: "matchNode",
-    position: { x: COLUMN_SPACING * 6, y: OFFSET_Y },
+    position: { x: COLUMN_SPACING * 3, y: OFFSET_Y + 160 },
     data: {
-      id: "r16-5",
-      roundName: "VÒNG 16 - TRẬN 5",
-      home: { name: "Hoàng Cyber", ign: "CyberStriker", avatar: AVATARS.striker, teamName: "Anh", teamFlag: "https://flagcdn.com/w40/gb-eng.png", score: null, formation: "4-2-3-1", squad: buildSampleSquad("4-2-3-1") },
-      away: { name: "Phan Viper", ign: "ViperKing", avatar: AVATARS.viper, teamName: "Hà Lan", teamFlag: "https://flagcdn.com/w40/nl.png", score: null, formation: "4-3-3", squad: buildSampleSquad("4-3-3") }
+      id: "sf-2",
+      roundName: "BÁN KẾT 2 (NHẤT C vs NHẤT D)",
+      home: null,
+      away: null
+    }
+  },
+
+  // ================= CỘT 5: VÒNG BẢNG C & D (PHẢI) =================
+  {
+    id: "group-c",
+    type: "groupNode",
+    position: { x: COLUMN_SPACING * 4, y: OFFSET_Y },
+    data: {
+      id: "group-c",
+      groupName: "BẢNG C",
+      teams: []
     }
   },
   {
-    id: "r16-6",
-    type: "matchNode",
-    position: { x: COLUMN_SPACING * 6, y: OFFSET_Y + ROW_SPACING * 1.5 },
+    id: "group-d",
+    type: "groupNode",
+    position: { x: COLUMN_SPACING * 4, y: OFFSET_Y + 310 },
     data: {
-      id: "r16-6",
-      roundName: "VÒNG 16 - TRẬN 6",
-      home: { name: "Đỗ Dragon", ign: "DragonEye", avatar: AVATARS.dragon, teamName: "Nhật Bản", teamFlag: "https://flagcdn.com/w40/jp.png", score: null, formation: "4-1-2-1-2", squad: buildSampleSquad("4-1-2-1-2") },
-      away: { name: "Trịnh Kaiser", ign: "Kaiser_FC", avatar: AVATARS.kaiser, teamName: "Hàn Quốc", teamFlag: "https://flagcdn.com/w40/kr.png", score: null, formation: "3-5-2", squad: buildSampleSquad("3-5-2") }
+      id: "group-d",
+      groupName: "BẢNG D",
+      teams: []
     }
-  },
-  {
-    id: "r16-7",
-    type: "matchNode",
-    position: { x: COLUMN_SPACING * 6, y: OFFSET_Y + ROW_SPACING * 3.5 },
-    data: { id: "r16-7", roundName: "VÒNG 16 - TRẬN 7", home: null, away: null }
-  },
-  {
-    id: "r16-8",
-    type: "matchNode",
-    position: { x: COLUMN_SPACING * 6, y: OFFSET_Y + ROW_SPACING * 5 },
-    data: { id: "r16-8", roundName: "VÒNG 16 - TRẬN 8", home: null, away: null }
   }
 ];
 
 export const INITIAL_BRACKET_EDGES: Edge[] = [
-  // Left Side Edges (Flow Left -> Right)
+  // Left Side Edges (Groups A, B -> SF1)
   {
-    id: "e-r16-1-qf-1",
-    source: "r16-1",
-    sourceHandle: "source-right",
-    target: "qf-1",
-    targetHandle: "target-left",
-    type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
-  },
-  {
-    id: "e-r16-2-qf-1",
-    source: "r16-2",
-    sourceHandle: "source-right",
-    target: "qf-1",
-    targetHandle: "target-left",
-    type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
-  },
-  {
-    id: "e-r16-3-qf-2",
-    source: "r16-3",
-    sourceHandle: "source-right",
-    target: "qf-2",
-    targetHandle: "target-left",
-    type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
-  },
-  {
-    id: "e-r16-4-qf-2",
-    source: "r16-4",
-    sourceHandle: "source-right",
-    target: "qf-2",
-    targetHandle: "target-left",
-    type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
-  },
-  {
-    id: "e-qf-1-sf-1",
-    source: "qf-1",
+    id: "e-group-a-sf-1",
+    source: "group-a",
     sourceHandle: "source-right",
     target: "sf-1",
     targetHandle: "target-left",
     type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
+    animated: true,
+    style: { stroke: "#7C3AED", strokeWidth: 2.5 }
   },
   {
-    id: "e-qf-2-sf-1",
-    source: "qf-2",
+    id: "e-group-b-sf-1",
+    source: "group-b",
     sourceHandle: "source-right",
     target: "sf-1",
     targetHandle: "target-left",
     type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
+    animated: true,
+    style: { stroke: "#7C3AED", strokeWidth: 2.5 }
   },
+
+  // SF1 -> Grand Final & Bronze Final
   {
     id: "e-sf-1-gf-1",
     source: "sf-1",
@@ -241,64 +166,42 @@ export const INITIAL_BRACKET_EDGES: Edge[] = [
     target: "gf-1",
     targetHandle: "target-left",
     type: "smoothstep",
-    style: { stroke: "#6D28D9", strokeWidth: 2 }
+    animated: true,
+    style: { stroke: "#A855F7", strokeWidth: 2.5 }
+  },
+  {
+    id: "e-sf-1-bf-1",
+    source: "sf-1",
+    sourceHandle: "source-right",
+    target: "bf-1",
+    targetHandle: "target-left",
+    type: "smoothstep",
+    style: { stroke: "#D97706", strokeWidth: 1.5 }
   },
 
-  // Right Side Edges (Flow Right -> Left)
+  // Right Side Edges (Groups C, D -> SF2)
   {
-    id: "e-r16-5-qf-3",
-    source: "r16-5",
-    sourceHandle: "source-left",
-    target: "qf-3",
-    targetHandle: "target-right",
-    type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
-  },
-  {
-    id: "e-r16-6-qf-3",
-    source: "r16-6",
-    sourceHandle: "source-left",
-    target: "qf-3",
-    targetHandle: "target-right",
-    type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
-  },
-  {
-    id: "e-r16-7-qf-4",
-    source: "r16-7",
-    sourceHandle: "source-left",
-    target: "qf-4",
-    targetHandle: "target-right",
-    type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
-  },
-  {
-    id: "e-r16-8-qf-4",
-    source: "r16-8",
-    sourceHandle: "source-left",
-    target: "qf-4",
-    targetHandle: "target-right",
-    type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
-  },
-  {
-    id: "e-qf-3-sf-2",
-    source: "qf-3",
+    id: "e-group-c-sf-2",
+    source: "group-c",
     sourceHandle: "source-left",
     target: "sf-2",
     targetHandle: "target-right",
     type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
+    animated: true,
+    style: { stroke: "#7C3AED", strokeWidth: 2.5 }
   },
   {
-    id: "e-qf-4-sf-2",
-    source: "qf-4",
+    id: "e-group-d-sf-2",
+    source: "group-d",
     sourceHandle: "source-left",
     target: "sf-2",
     targetHandle: "target-right",
     type: "smoothstep",
-    style: { stroke: "#334155", strokeWidth: 1.5 }
+    animated: true,
+    style: { stroke: "#7C3AED", strokeWidth: 2.5 }
   },
+
+  // SF2 -> Grand Final & Bronze Final
   {
     id: "e-sf-2-gf-1",
     source: "sf-2",
@@ -306,8 +209,18 @@ export const INITIAL_BRACKET_EDGES: Edge[] = [
     target: "gf-1",
     targetHandle: "target-right",
     type: "smoothstep",
-    style: { stroke: "#6D28D9", strokeWidth: 2 }
+    animated: true,
+    style: { stroke: "#A855F7", strokeWidth: 2.5 }
   },
+  {
+    id: "e-sf-2-bf-1",
+    source: "sf-2",
+    sourceHandle: "source-left",
+    target: "bf-1",
+    targetHandle: "target-right",
+    type: "smoothstep",
+    style: { stroke: "#D97706", strokeWidth: 1.5 }
+  }
 ];
 
 interface ReactFlowBracketProps {
@@ -316,37 +229,36 @@ interface ReactFlowBracketProps {
   edges?: Edge[];
   registeredCount?: number;
   onSelectMatch?: (matchData: MatchNodeData) => void;
+  onSelectGroup?: (groupData: GroupNodeData) => void;
 }
 
 export default function ReactFlowBracket({
   nodes,
   onNodesChange,
   edges = INITIAL_BRACKET_EDGES,
-  registeredCount = 12,
-  onSelectMatch
+  onSelectMatch,
+  onSelectGroup
 }: ReactFlowBracketProps) {
   const formattedNodes = useMemo(() => {
     return nodes.map((node) => ({
       ...node,
       data: {
         ...node.data,
-        onSelectMatch
+        onSelectMatch,
+        onSelectGroup
       }
     }));
-  }, [nodes, onSelectMatch]);
+  }, [nodes, onSelectMatch, onSelectGroup]);
 
   return (
     <div className="relative w-full h-[780px] bg-[#070913] flex flex-col">
-
-      {/* 7-Column World Cup Symmetric Header */}
-      <div className="grid grid-cols-7 gap-2 px-6 py-3 bg-[#0D111E] border-b border-[#1A2032] text-center z-10 select-none text-[11px] font-black uppercase tracking-wider">
-        <div className="text-slate-300">VÒNG 16 (TRÁI)</div>
-        <div className="text-slate-400">TỨ KẾT</div>
-        <div className="text-purple-300">BÁN KẾT</div>
-        <div className="text-amber-400 font-extrabold text-xs">CHUNG KẾT</div>
-        <div className="text-purple-300">BÁN KẾT</div>
-        <div className="text-slate-400">TỨ KẾT</div>
-        <div className="text-slate-300">VÒNG 16 (PHẢI)</div>
+      {/* 5-Column World Cup Symmetric Header */}
+      <div className="grid grid-cols-5 gap-2 px-6 py-3 bg-[#0D111E] border-b border-[#1A2032] text-center z-10 select-none text-[11px] font-black uppercase tracking-wider">
+        <div className="text-purple-300">VÒNG BẢNG (A & B)</div>
+        <div className="text-purple-400">BÁN KẾT 1</div>
+        <div className="text-amber-400 font-extrabold text-xs">CHUNG KẾT & TRANH HẠNG 3</div>
+        <div className="text-purple-400">BÁN KẾT 2</div>
+        <div className="text-purple-300">VÒNG BẢNG (C & D)</div>
       </div>
 
       {/* React Flow Viewport Canvas */}
@@ -359,13 +271,19 @@ export default function ReactFlowBracket({
           nodesDraggable={false}
           nodesConnectable={false}
           elementsSelectable={true}
-          onNodeClick={(_event, node) => onSelectMatch?.(node.data as MatchNodeData)}
+          onNodeClick={(_event, node) => {
+            if (node.type === "groupNode") {
+              onSelectGroup?.(node.data as unknown as GroupNodeData);
+            } else {
+              onSelectMatch?.(node.data as MatchNodeData);
+            }
+          }}
           zoomOnScroll={false}
           zoomOnPinch={false}
           zoomOnDoubleClick={false}
           panOnScroll={false}
           panOnDrag={false}
-          preventScrolling={true}
+          preventScrolling={false}
           fitView
           fitViewOptions={{ padding: 0.05 }}
           proOptions={{ hideAttribution: true }}
@@ -373,7 +291,6 @@ export default function ReactFlowBracket({
           <Background color="#161B2E" gap={30} size={1} />
         </ReactFlow>
       </div>
-
     </div>
   );
 }

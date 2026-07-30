@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trophy, User, Gamepad2, Flag, Check, Sparkles, LayoutGrid } from "lucide-react";
+import { X, Trophy, User, Gamepad2, Check, Sparkles, LayoutGrid, Dices } from "lucide-react";
 import { FormationType } from "@/types/tournament";
 
 export interface NationalTeam {
@@ -9,25 +9,47 @@ export interface NationalTeam {
   name: string;
   code: string;
   flag: string;
+  tier: "S" | "A" | "B" | "C";
 }
 
 export const WORLD_CUP_TEAMS: NationalTeam[] = [
-  { id: "fra", name: "Pháp", code: "FRA", flag: "https://flagcdn.com/w40/fr.png" },
-  { id: "arg", name: "Argentina", code: "ARG", flag: "https://flagcdn.com/w40/ar.png" },
-  { id: "bra", name: "Brazil", code: "BRA", flag: "https://flagcdn.com/w40/br.png" },
-  { id: "por", name: "Bồ Đào Nha", code: "POR", flag: "https://flagcdn.com/w40/pt.png" },
-  { id: "eng", name: "Anh", code: "ENG", flag: "https://flagcdn.com/w40/gb-eng.png" },
-  { id: "esp", name: "Tây Ban Nha", code: "ESP", flag: "https://flagcdn.com/w40/es.png" },
-  { id: "ger", name: "Đức", code: "GER", flag: "https://flagcdn.com/w40/de.png" },
-  { id: "ned", name: "Hà Lan", code: "NED", flag: "https://flagcdn.com/w40/nl.png" },
-  { id: "jpn", name: "Nhật Bản", code: "JPN", flag: "https://flagcdn.com/w40/jp.png" },
-  { id: "kor", name: "Hàn Quốc", code: "KOR", flag: "https://flagcdn.com/w40/kr.png" },
-  { id: "vnm", name: "Việt Nam", code: "VIE", flag: "https://flagcdn.com/w40/vn.png" },
-  { id: "bel", name: "Bỉ", code: "BEL", flag: "https://flagcdn.com/w40/be.png" },
-  { id: "cro", name: "Croatia", code: "CRO", flag: "https://flagcdn.com/w40/hr.png" },
-  { id: "uru", name: "Uruguay", code: "URU", flag: "https://flagcdn.com/w40/uy.png" },
-  { id: "mar", name: "Ma-rốc", code: "MAR", flag: "https://flagcdn.com/w40/ma.png" },
-  { id: "usa", name: "Mỹ", code: "USA", flag: "https://flagcdn.com/w40/us.png" },
+  // 🔴 Tier S (6 đội)
+  { id: "fra", name: "Pháp", code: "FRA", flag: "https://flagcdn.com/w40/fr.png", tier: "S" },
+  { id: "esp", name: "Tây Ban Nha", code: "ESP", flag: "https://flagcdn.com/w40/es.png", tier: "S" },
+  { id: "arg", name: "Argentina", code: "ARG", flag: "https://flagcdn.com/w40/ar.png", tier: "S" },
+  { id: "bra", name: "Brazil", code: "BRA", flag: "https://flagcdn.com/w40/br.png", tier: "S" },
+  { id: "por", name: "Bồ Đào Nha", code: "POR", flag: "https://flagcdn.com/w40/pt.png", tier: "S" },
+  { id: "eng", name: "Anh", code: "ENG", flag: "https://flagcdn.com/w40/gb-eng.png", tier: "S" },
+
+  // 🟠 Tier A (10 đội)
+  { id: "ger", name: "Đức", code: "GER", flag: "https://flagcdn.com/w40/de.png", tier: "A" },
+  { id: "ned", name: "Hà Lan", code: "NED", flag: "https://flagcdn.com/w40/nl.png", tier: "A" },
+  { id: "bel", name: "Bỉ", code: "BEL", flag: "https://flagcdn.com/w40/be.png", tier: "A" },
+  { id: "uru", name: "Uruguay", code: "URU", flag: "https://flagcdn.com/w40/uy.png", tier: "A" },
+  { id: "col", name: "Colombia", code: "COL", flag: "https://flagcdn.com/w40/co.png", tier: "A" },
+  { id: "cro", name: "Croatia", code: "CRO", flag: "https://flagcdn.com/w40/hr.png", tier: "A" },
+  { id: "nor", name: "Na Uy", code: "NOR", flag: "https://flagcdn.com/w40/no.png", tier: "A" },
+  { id: "mar", name: "Morocco", code: "MAR", flag: "https://flagcdn.com/w40/ma.png", tier: "A" },
+  { id: "jpn", name: "Nhật Bản", code: "JPN", flag: "https://flagcdn.com/w40/jp.png", tier: "A" },
+  { id: "sen", name: "Senegal", code: "SEN", flag: "https://flagcdn.com/w40/sn.png", tier: "A" },
+
+  // 🟡 Tier B (8 đội)
+  { id: "tur", name: "Thổ Nhĩ Kỳ", code: "TUR", flag: "https://flagcdn.com/w40/tr.png", tier: "B" },
+  { id: "swe", name: "Thụy Điển", code: "SWE", flag: "https://flagcdn.com/w40/se.png", tier: "B" },
+  { id: "sui", name: "Thụy Sĩ", code: "SUI", flag: "https://flagcdn.com/w40/ch.png", tier: "B" },
+  { id: "aut", name: "Áo", code: "AUT", flag: "https://flagcdn.com/w40/at.png", tier: "B" },
+  { id: "ecu", name: "Ecuador", code: "ECU", flag: "https://flagcdn.com/w40/ec.png", tier: "B" },
+  { id: "usa", name: "Mỹ", code: "USA", flag: "https://flagcdn.com/w40/us.png", tier: "B" },
+  { id: "mex", name: "Mexico", code: "MEX", flag: "https://flagcdn.com/w40/mx.png", tier: "B" },
+  { id: "cze", name: "CH Séc", code: "CZE", flag: "https://flagcdn.com/w40/cz.png", tier: "B" },
+
+  // 🟢 Tier C (6 đội)
+  { id: "civ", name: "Bờ Biển Ngà", code: "CIV", flag: "https://flagcdn.com/w40/ci.png", tier: "C" },
+  { id: "gha", name: "Ghana", code: "GHA", flag: "https://flagcdn.com/w40/gh.png", tier: "C" },
+  { id: "egy", name: "Ai Cập", code: "EGY", flag: "https://flagcdn.com/w40/eg.png", tier: "C" },
+  { id: "par", name: "Paraguay", code: "PAR", flag: "https://flagcdn.com/w40/py.png", tier: "C" },
+  { id: "can", name: "Canada", code: "CAN", flag: "https://flagcdn.com/w40/ca.png", tier: "C" },
+  { id: "kor", name: "Hàn Quốc", code: "KOR", flag: "https://flagcdn.com/w40/kr.png", tier: "C" },
 ];
 
 export const AVAILABLE_FORMATIONS: { id: FormationType; label: string; desc: string }[] = [
@@ -41,8 +63,8 @@ export const AVAILABLE_FORMATIONS: { id: FormationType; label: string; desc: str
 export interface PlayerRegistrationForm {
   fullName: string;
   ign: string;
-  selectedTeam: NationalTeam;
   formation: FormationType;
+  selectedTeam?: NationalTeam;
 }
 
 interface RegisterModalProps {
@@ -54,7 +76,6 @@ interface RegisterModalProps {
 export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterModalProps) {
   const [fullName, setFullName] = useState("");
   const [ign, setIgn] = useState("");
-  const [selectedTeam, setSelectedTeam] = useState<NationalTeam>(WORLD_CUP_TEAMS[0]);
   const [formation, setFormation] = useState<FormationType>("4-2-3-1");
 
   if (!isOpen) return null;
@@ -66,7 +87,6 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
     onSubmit({
       fullName: fullName.trim(),
       ign: ign.trim(),
-      selectedTeam,
       formation,
     });
 
@@ -79,7 +99,6 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
       {/* Modal Dialog Container */}
       <div className="relative w-full max-w-lg bg-[#0D111E] border border-[#1F263B] rounded-3xl p-6 shadow-2xl text-white flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
-        
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#1F263B] pb-4">
           <div className="flex items-center gap-3">
@@ -100,9 +119,16 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
           </button>
         </div>
 
+        {/* Info Banner about Random Team Draw */}
+        <div className="p-3 rounded-2xl bg-purple-950/40 border border-purple-800/40 flex items-center gap-3 text-xs text-purple-200">
+          <Dices className="w-5 h-5 text-amber-400 shrink-0 animate-bounce" />
+          <span>
+            <strong className="text-white">Bốc thăm Đội tuyển:</strong> Đội tuyển đại diện của bạn sẽ được Admin bốc thăm ngẫu nhiên (không trùng lặp) trong buổi quay giải!
+          </span>
+        </div>
+
         {/* Registration Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          
           {/* 1. Tên Người Chơi */}
           <div>
             <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider block mb-1.5 flex items-center gap-1.5">
@@ -133,48 +159,11 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
             />
           </div>
 
-          {/* 3. Chọn Đội Tuyển World Cup */}
+          {/* 3. Chọn Đội Hình Thi Đấu (Sơ Đồ Chiến Thuật) */}
           <div>
             <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider block mb-2 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <Flag className="w-3.5 h-3.5 text-purple-400" /> Chọn Đội Tuyển Đăng Ký
-              </span>
-              <span className="text-[11px] font-bold text-purple-300">
-                Đã chọn: {selectedTeam.name} ({selectedTeam.code})
-              </span>
-            </label>
-
-            {/* Grid of National Teams */}
-            <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto p-2 bg-[#090C16] border border-[#1A2135] rounded-xl">
-              {WORLD_CUP_TEAMS.map((team) => {
-                const isSelected = selectedTeam.id === team.id;
-
-                return (
-                  <button
-                    key={team.id}
-                    type="button"
-                    onClick={() => setSelectedTeam(team)}
-                    className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition ${
-                      isSelected
-                        ? "bg-[#251A3E] border-[#7C3AED] text-white shadow-[0_0_12px_rgba(124,58,237,0.4)]"
-                        : "bg-[#121727] border-[#1E263A] text-slate-400 hover:text-white hover:border-slate-600"
-                    }`}
-                  >
-                    <img src={team.flag} alt={team.name} className="w-6 h-4 object-cover rounded-sm border border-black/40" />
-                    <span className="text-[10px] font-bold truncate w-full text-center">
-                      {team.name}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 4. Chọn Đội Hình Thi Đấu (Sơ Đồ Chiến Thuật) */}
-          <div>
-            <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider block mb-2 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <LayoutGrid className="w-3.5 h-3.5 text-purple-400" /> Chọn Đội Hình Thi Đấu (Sơ Đồ Chiến Thuật) <span className="text-purple-400">*</span>
+                <LayoutGrid className="w-3.5 h-3.5 text-purple-400" /> Chọn Sơ Đồ Chiến Thuật <span className="text-purple-400">*</span>
               </span>
               <span className="text-[11px] font-bold text-purple-300">
                 {formation}
@@ -220,7 +209,6 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
               <Check className="w-4 h-4" /> XÁC NHẬN ĐĂNG KÝ
             </button>
           </div>
-
         </form>
       </div>
     </div>

@@ -214,3 +214,89 @@ export function generateSwissMatches(
     (m) => m.round === 1
   );
 }
+
+/**
+ * 12 Teams: 4 Groups of 3 Teams -> Top 1 of each group advances to Semi-Finals
+ */
+export function generate4GroupsToSemiFinalsMatches(
+  tournamentId: string,
+  participantUserIds: string[]
+): GeneratedMatch[] {
+  const matches: GeneratedMatch[] = [];
+  let matchCounter = 1;
+
+  // 1. Group Stage (4 groups of 3 players each)
+  const groupNames = ["BẢNG A", "BẢNG B", "BẢNG C", "BẢNG D"];
+  for (let g = 0; g < 4; g++) {
+    const groupMembers = participantUserIds.slice(g * 3, (g + 1) * 3);
+    const groupName = groupNames[g];
+
+    // Intra-group 3 matches: T0 vs T1, T1 vs T2, T0 vs T2
+    for (let i = 0; i < groupMembers.length; i++) {
+      for (let j = i + 1; j < groupMembers.length; j++) {
+        matches.push({
+          tournamentId,
+          round: 1,
+          matchNumber: matchCounter++,
+          bracketType: "GROUP",
+          groupName,
+          homePlayerId: groupMembers[i] || null,
+          awayPlayerId: groupMembers[j] || null,
+          status: "READY"
+        });
+      }
+    }
+  }
+
+  // 2. Knockout Stage: Semi-Finals (Round 2)
+  // SF1: Top A vs Top B
+  matches.push({
+    tournamentId,
+    round: 2,
+    matchNumber: matchCounter++,
+    bracketType: "WINNERS",
+    groupName: "BÁN KẾT 1",
+    homePlayerId: null,
+    awayPlayerId: null,
+    status: "SCHEDULED"
+  });
+
+  // SF2: Top C vs Top D
+  matches.push({
+    tournamentId,
+    round: 2,
+    matchNumber: matchCounter++,
+    bracketType: "WINNERS",
+    groupName: "BÁN KẾT 2",
+    homePlayerId: null,
+    awayPlayerId: null,
+    status: "SCHEDULED"
+  });
+
+  // 3. Grand Finals (Round 3)
+  matches.push({
+    tournamentId,
+    round: 3,
+    matchNumber: matchCounter++,
+    bracketType: "GRAND_FINAL",
+    groupName: "CHUNG KẾT",
+    homePlayerId: null,
+    awayPlayerId: null,
+    status: "SCHEDULED"
+  });
+
+  // 4. Bronze Final (Third-place)
+  matches.push({
+    tournamentId,
+    round: 3,
+    matchNumber: matchCounter++,
+    bracketType: "LOSERS",
+    groupName: "TRANH HẠNG BA",
+    homePlayerId: null,
+    awayPlayerId: null,
+    status: "SCHEDULED"
+  });
+
+  return matches;
+}
+
