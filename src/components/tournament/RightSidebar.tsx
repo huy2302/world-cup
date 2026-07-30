@@ -24,68 +24,7 @@ interface RightSidebarProps {
   onOpenGroupSelect?: () => void;
 }
 
-const DEFAULT_PLAYERS: RegisteredPlayer[] = [
-  {
-    name: "FCPro_HuyDev",
-    avatar: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/es.png"
-  },
-  {
-    name: "Neuer_Wall",
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/de.png"
-  },
-  {
-    name: "VN_CyberDragon",
-    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/vn.png"
-  },
-  {
-    name: "Blitz_R9",
-    avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/br.png"
-  },
-  {
-    name: "CR7_KingGamer",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/pt.png"
-  },
-  {
-    name: "Coach_PepPro",
-    avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/es.png"
-  },
-  {
-    name: "Shadow_FC4",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/fr.png"
-  },
-  {
-    name: "LM10_GOAT",
-    avatar: "https://images.unsplash.com/photo-1628157582853-a796fa650a6a?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/ar.png"
-  },
-  {
-    name: "CyberStriker",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/gb-eng.png"
-  },
-  {
-    name: "ViperKing",
-    avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/nl.png"
-  },
-  {
-    name: "DragonEye",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/jp.png"
-  },
-  {
-    name: "Kaiser_FC",
-    avatar: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=200&q=80",
-    clubLogo: "https://flagcdn.com/w40/kr.png"
-  }
-];
+const DEFAULT_PLAYERS: RegisteredPlayer[] = [];
 
 export default function RightSidebar({
   registeredPlayers = DEFAULT_PLAYERS,

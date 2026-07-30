@@ -20,7 +20,7 @@ import { sortGroupTeams, formatGroupTeamToCompetitor } from "@/lib/group-utils";
 import { GroupNodeData } from "../bracket/GroupNode";
 import { CompetitorData, MatchNodeData } from "../bracket/MatchNode";
 import { buildSampleSquad } from "@/data/mockTournament";
-import { registerParticipant, saveBracketStateToDB, loadBracketStateFromDB, registerPlayerToDB, loadRegisteredPlayersFromDB } from "@/actions/tournament-actions";
+import { registerParticipant, saveBracketStateToDB, loadBracketStateFromDB, registerPlayerToDB, loadRegisteredPlayersFromDB, updateMatchScoreInDB, updateUserDrawnTeamInDB } from "@/actions/tournament-actions";
 
 interface TournamentPageProps {
   initialTournament?: any;
@@ -80,28 +80,31 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
   const [isDrawModalOpen, setIsDrawModalOpen] = useState(false);
   const [animatingDrawInfo, setAnimatingDrawInfo] = useState<{ player: string; team: NationalTeam } | null>(null);
 
-  // 1. Load tournament bracket & registered players from Neon PostgreSQL DB on page mount
+  // 1. Load tournament bracket & registered players directly from Neon PostgreSQL DB
   useEffect(() => {
     async function initDBData() {
       try {
-        let dbUsersList: RegisteredPlayer[] = [];
+        let realUsersFromDB: RegisteredPlayer[] = [];
         const dbPlayersRes = await loadRegisteredPlayersFromDB();
         if (dbPlayersRes.success && dbPlayersRes.players) {
-          dbUsersList = dbPlayersRes.players;
-          setRegisteredPlayers(dbPlayersRes.players);
+          realUsersFromDB = dbPlayersRes.players;
+          setRegisteredPlayers(realUsersFromDB);
         }
 
         const res = await loadBracketStateFromDB();
         if (res.success && res.bracketData) {
           const parsed = JSON.parse(res.bracketData);
           if (parsed.nodes) setNodes(parsed.nodes);
-          if (parsed.unassignedPlayers) setUnassignedPlayers(parsed.unassignedPlayers);
           if (parsed.assignedTeams) setAssignedTeams(parsed.assignedTeams);
-          if (parsed.registeredPlayers && parsed.registeredPlayers.length > 0) {
-            setRegisteredPlayers(parsed.registeredPlayers);
+
+          // Build unassigned players only from real DB users not yet drawn
+          if (realUsersFromDB.length > 0) {
+            setUnassignedPlayers(realUsersFromDB.map((p) => ({ name: p.name, avatar: p.avatar })));
+          } else {
+            setUnassignedPlayers([]);
           }
-        } else if (dbUsersList.length > 0) {
-          setUnassignedPlayers(dbUsersList.map((p) => ({ name: p.name, avatar: p.avatar })));
+        } else {
+          setUnassignedPlayers(realUsersFromDB.map((p) => ({ name: p.name, avatar: p.avatar })));
         }
       } catch (err) {
         console.error("Failed loading from DB:", err);
@@ -227,6 +230,7 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
   const handleSaveMatchScore = (matchId: string, homeScore: number, awayScore: number, status: string) => {
     let updatedGroupData: GroupNodeData | null = null;
     let updatedMatchData: MatchNodeData | null = null;
+    let finalNodesState = nodes;
 
     setNodes((prevNodes) => {
       // Step 1: Update target node
@@ -352,27 +356,25 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
       const isGroupCComplete = ((groupCNode?.data as any)?.matches || []).filter((m: any) => m.homeScore !== null && m.awayScore !== null).length >= 1;
       const isGroupDComplete = ((groupDNode?.data as any)?.matches || []).filter((m: any) => m.homeScore !== null && m.awayScore !== null).length >= 1;
 
-      // Step 3: Auto-advance Winners of Semi-Finals into Grand Final (gf-1)
+      // Check Semi-Final winners
       const sf1Node = nodesAfterUpdate.find((n) => n.id === "sf-1");
       const sf2Node = nodesAfterUpdate.find((n) => n.id === "sf-2");
 
       const sf1Home = (sf1Node?.data as any)?.home;
       const sf1Away = (sf1Node?.data as any)?.away;
-      let sf1Winner = null;
-      if (sf1Home?.score !== null && sf1Home?.score !== undefined && sf1Away?.score !== null && sf1Away?.score !== undefined) {
-        if (sf1Home.score > sf1Away.score) sf1Winner = sf1Home;
-        else if (sf1Away.score > sf1Home.score) sf1Winner = sf1Away;
+      let sf1Winner: CompetitorData | null = null;
+      if (sf1Home && sf1Away && sf1Home.score !== null && sf1Away.score !== null) {
+        sf1Winner = sf1Home.score > sf1Away.score ? sf1Home : sf1Away;
       }
 
       const sf2Home = (sf2Node?.data as any)?.home;
       const sf2Away = (sf2Node?.data as any)?.away;
-      let sf2Winner = null;
-      if (sf2Home?.score !== null && sf2Home?.score !== undefined && sf2Away?.score !== null && sf2Away?.score !== undefined) {
-        if (sf2Home.score > sf2Away.score) sf2Winner = sf2Home;
-        else if (sf2Away.score > sf2Home.score) sf2Winner = sf2Away;
+      let sf2Winner: CompetitorData | null = null;
+      if (sf2Home && sf2Away && sf2Home.score !== null && sf2Away.score !== null) {
+        sf2Winner = sf2Home.score > sf2Away.score ? sf2Home : sf2Away;
       }
 
-      return nodesAfterUpdate.map((n) => {
+      finalNodesState = nodesAfterUpdate.map((n) => {
         // Semi-Final 1 (Nhất A vs Nhất B)
         if (n.id === "sf-1" && n.type === "matchNode") {
           const currentHome = (n.data as any).home;
@@ -423,6 +425,8 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
 
         return n;
       });
+
+      return finalNodesState;
     });
 
     if (updatedGroupData) {
@@ -441,7 +445,12 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
     }
 
     setActiveScoreUpdateMatch(null);
-    persistStateToDB();
+
+    // Persist updated nodes state to Neon DB bracketData AND update relational Match table
+    setTimeout(() => {
+      persistStateToDB(finalNodesState);
+      updateMatchScoreInDB({ matchId, homeScore, awayScore });
+    }, 50);
   };
 
   // Perform single random draw (bốc thăm 1 người)
@@ -540,12 +549,34 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
     });
 
     // Update unassigned and assigned teams states
-    setUnassignedPlayers((prev) => prev.filter((p) => p.name !== player.name));
+    setUnassignedPlayers((prev) => prev.filter((p) => p.name.toLowerCase() !== player.name.toLowerCase()));
     setAssignedTeams((prev) => [...prev, team.name]);
-    setRegisteredPlayers((prev) => [
-      ...prev,
-      { name: player.name, clubLogo: team.flag, avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${player.name}` }
-    ]);
+
+    let updatedRegisteredPlayers: RegisteredPlayer[] = registeredPlayers;
+    setRegisteredPlayers((prev) => {
+      let found = false;
+      const updated = prev.map((p) => {
+        if (p.name.toLowerCase() === player.name.toLowerCase()) {
+          found = true;
+          return {
+            ...p,
+            clubLogo: team.flag
+          };
+        }
+        return p;
+      });
+
+      if (!found) {
+        updated.push({
+          name: player.name,
+          clubLogo: team.flag,
+          avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(player.name)}`
+        });
+      }
+
+      updatedRegisteredPlayers = updated;
+      return updated;
+    });
 
     // Keep settled node highlighted and banner visible for 1.8 seconds, then re-open DrawModal
     await new Promise((r) => setTimeout(r, 1800));
@@ -560,7 +591,8 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
 
     // Re-open DrawModal so Admin can draw the next player!
     setIsDrawModalOpen(true);
-    persistStateToDB();
+    persistStateToDB(nodes, unassignedPlayers.filter((p) => p.name.toLowerCase() !== player.name.toLowerCase()), [...assignedTeams, team.name], updatedRegisteredPlayers);
+    updateUserDrawnTeamInDB({ ign: player.name, teamName: team.name, teamFlag: team.flag });
   };
 
   return (

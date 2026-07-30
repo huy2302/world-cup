@@ -281,13 +281,113 @@ export async function saveBracketStateToDB(bracketDataJson: string) {
 
 export async function loadBracketStateFromDB() {
   try {
-    const tournament = await db.tournament.findFirst();
+    const tournament = await db.tournament.findFirst({
+      orderBy: { createdAt: "desc" }
+    });
     if (tournament && tournament.bracketData) {
       return { success: true, bracketData: tournament.bracketData };
     }
     return { success: false };
   } catch (error: any) {
     console.error("Failed to load bracket state:", error);
+    return { error: error?.message };
+  }
+}
+
+export async function resetAllTournamentDataInDB() {
+  try {
+    await db.tournament.updateMany({
+      data: {
+        bracketData: null
+      }
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to reset DB tournament data:", error);
+    return { error: error?.message };
+  }
+}
+
+export async function updateMatchScoreInDB(payload: {
+  matchId: string;
+  homeScore: number;
+  awayScore: number;
+}) {
+  try {
+    const tournament = await db.tournament.findFirst({
+      orderBy: { createdAt: "desc" }
+    });
+    if (!tournament) return { error: "No active tournament found" };
+
+    const roundNum = payload.matchId.startsWith("sf") ? 2 : payload.matchId.startsWith("gf") ? 3 : 1;
+    const bracketKind = payload.matchId.startsWith("group") ? "GROUP_STAGE" : "WINNERS";
+    const groupNameStr = payload.matchId.startsWith("group-a")
+      ? "BẢNG A"
+      : payload.matchId.startsWith("group-b")
+      ? "BẢNG B"
+      : payload.matchId.startsWith("group-c")
+      ? "BẢNG C"
+      : payload.matchId.startsWith("group-d")
+      ? "BẢNG D"
+      : null;
+
+    await db.match.upsert({
+      where: {
+        id: payload.matchId
+      },
+      update: {
+        homeScore: payload.homeScore,
+        awayScore: payload.awayScore,
+        status: "COMPLETED",
+        completedAt: new Date()
+      },
+      create: {
+        id: payload.matchId,
+        tournamentId: tournament.id,
+        round: roundNum,
+        matchNumber: 1,
+        bracketType: bracketKind,
+        groupName: groupNameStr,
+        homeScore: payload.homeScore,
+        awayScore: payload.awayScore,
+        status: "COMPLETED",
+        completedAt: new Date()
+      }
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to update match score in DB:", error);
+    return { error: error?.message };
+  }
+}
+
+export async function updateUserDrawnTeamInDB(payload: {
+  ign: string;
+  teamName: string;
+  teamFlag: string;
+}) {
+  try {
+    const user = await db.user.findFirst({
+      where: {
+        OR: [
+          { ign: payload.ign },
+          { username: payload.ign }
+        ]
+      }
+    });
+
+    if (user) {
+      await db.user.update({
+        where: { id: user.id },
+        data: {
+          favoriteClub: payload.teamName
+        }
+      });
+    }
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to update user drawn team in DB:", error);
     return { error: error?.message };
   }
 }
@@ -309,7 +409,7 @@ export async function registerPlayerToDB(form: {
       update: {
         ign: form.ign,
         discordTag: form.discordTag || null,
-        favoriteClub: form.favoriteClub || "Real Madrid",
+        favoriteClub: form.favoriteClub || "",
         avatarUrl
       },
       create: {
@@ -318,7 +418,7 @@ export async function registerPlayerToDB(form: {
         passwordHash: "registered_player",
         ign: form.ign,
         discordTag: form.discordTag || null,
-        favoriteClub: form.favoriteClub || "Real Madrid",
+        favoriteClub: form.favoriteClub || "",
         avatarUrl
       }
     });
@@ -343,12 +443,32 @@ export async function loadRegisteredPlayersFromDB() {
     const users = await db.user.findMany({
       orderBy: { createdAt: "asc" }
     });
+
+    // Helper map team name to flag
+    const getFlagUrl = (teamName?: string | null): string => {
+      if (!teamName) return "";
+      const flagsMap: Record<string, string> = {
+        "Tây Ban Nha": "https://flagcdn.com/w40/es.png",
+        "Đức": "https://flagcdn.com/w40/de.png",
+        "Việt Nam": "https://flagcdn.com/w40/vn.png",
+        "Brazil": "https://flagcdn.com/w40/br.png",
+        "Bồ Đào Nha": "https://flagcdn.com/w40/pt.png",
+        "Pháp": "https://flagcdn.com/w40/fr.png",
+        "Argentina": "https://flagcdn.com/w40/ar.png",
+        "Anh": "https://flagcdn.com/w40/gb-eng.png",
+        "Hà Lan": "https://flagcdn.com/w40/nl.png",
+        "Nhật Bản": "https://flagcdn.com/w40/jp.png",
+        "Hàn Quốc": "https://flagcdn.com/w40/kr.png"
+      };
+      return flagsMap[teamName] || "";
+    };
+
     return {
       success: true,
       players: users.map((u) => ({
         name: u.ign || u.username,
-        avatar: u.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${u.username}`,
-        clubLogo: ""
+        avatar: u.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(u.username)}`,
+        clubLogo: getFlagUrl(u.favoriteClub)
       }))
     };
   } catch (error: any) {
