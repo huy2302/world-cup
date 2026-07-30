@@ -291,3 +291,68 @@ export async function loadBracketStateFromDB() {
     return { error: error?.message };
   }
 }
+
+export async function registerPlayerToDB(form: {
+  ign: string;
+  discordTag?: string;
+  favoriteClub?: string;
+  squadValue?: string;
+}) {
+  try {
+    const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(form.ign)}`;
+    const email = `${form.ign.toLowerCase().replace(/[^a-z0-9]/g, "")}@fconline.com`;
+    const username = form.ign;
+
+    // Create or update User in Neon DB
+    const user = await db.user.upsert({
+      where: { username },
+      update: {
+        ign: form.ign,
+        discordTag: form.discordTag || null,
+        favoriteClub: form.favoriteClub || "Real Madrid",
+        avatarUrl
+      },
+      create: {
+        email,
+        username,
+        passwordHash: "registered_player",
+        ign: form.ign,
+        discordTag: form.discordTag || null,
+        favoriteClub: form.favoriteClub || "Real Madrid",
+        avatarUrl
+      }
+    });
+
+    return {
+      success: true,
+      player: {
+        id: user.id,
+        name: form.ign,
+        avatar: avatarUrl,
+        clubLogo: ""
+      }
+    };
+  } catch (error: any) {
+    console.error("Failed to register player to DB:", error);
+    return { error: error?.message || "Lỗi khi lưu thông tin người chơi vào Database" };
+  }
+}
+
+export async function loadRegisteredPlayersFromDB() {
+  try {
+    const users = await db.user.findMany({
+      orderBy: { createdAt: "asc" }
+    });
+    return {
+      success: true,
+      players: users.map((u) => ({
+        name: u.ign || u.username,
+        avatar: u.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${u.username}`,
+        clubLogo: ""
+      }))
+    };
+  } catch (error: any) {
+    console.error("Failed to load registered players:", error);
+    return { error: error?.message, players: [] };
+  }
+}
