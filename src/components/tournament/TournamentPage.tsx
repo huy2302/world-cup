@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNodesState } from "@xyflow/react";
 import { Sparkles } from "lucide-react";
 import TournamentHeader from "./TournamentHeader";
@@ -15,11 +15,12 @@ import GroupDialog from "../dialogs/GroupDialog";
 import AdminPasswordModal from "../dialogs/AdminPasswordModal";
 import DrawModal from "../dialogs/DrawModal";
 import UpdateScoreModal, { ScoreUpdateTarget } from "../dialogs/UpdateScoreModal";
+import ChampionCelebrationModal from "../dialogs/ChampionCelebrationModal";
 import { sortGroupTeams, formatGroupTeamToCompetitor } from "@/lib/group-utils";
 import { GroupNodeData } from "../bracket/GroupNode";
 import { CompetitorData, MatchNodeData } from "../bracket/MatchNode";
 import { buildSampleSquad } from "@/data/mockTournament";
-import { registerParticipant } from "@/actions/tournament-actions";
+import { registerParticipant, saveBracketStateToDB, loadBracketStateFromDB } from "@/actions/tournament-actions";
 
 interface TournamentPageProps {
   initialTournament?: any;
@@ -105,6 +106,36 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
   const [isDrawModalOpen, setIsDrawModalOpen] = useState(false);
   const [animatingDrawInfo, setAnimatingDrawInfo] = useState<{ player: string; team: NationalTeam } | null>(null);
 
+  // 1. Load tournament bracket & scores from Neon PostgreSQL DB on page mount
+  useEffect(() => {
+    async function initDBData() {
+      try {
+        const res = await loadBracketStateFromDB();
+        if (res.success && res.bracketData) {
+          const parsed = JSON.parse(res.bracketData);
+          if (parsed.nodes) setNodes(parsed.nodes);
+          if (parsed.unassignedPlayers) setUnassignedPlayers(parsed.unassignedPlayers);
+          if (parsed.assignedTeams) setAssignedTeams(parsed.assignedTeams);
+          if (parsed.registeredPlayers) setRegisteredPlayers(parsed.registeredPlayers);
+        }
+      } catch (err) {
+        console.error("Failed loading from DB:", err);
+      }
+    }
+    initDBData();
+  }, [setNodes]);
+
+  // 2. Helper to sync bracket state & scores to Neon PostgreSQL DB
+  const persistStateToDB = (updatedNodes = nodes, unassigned = unassignedPlayers, assigned = assignedTeams, registered = registeredPlayers) => {
+    const payload = JSON.stringify({
+      nodes: updatedNodes,
+      unassignedPlayers: unassigned,
+      assignedTeams: assigned,
+      registeredPlayers: registered
+    });
+    saveBracketStateToDB(payload).catch((err) => console.error("Auto-save error:", err));
+  };
+
   // Synchronized drawer competitors mapped directly from active bracket nodes
   const drawerCompetitors = useMemo(() => {
     const list: any[] = [];
@@ -158,6 +189,7 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
   // Admin Score Update states
   const [pendingScoreUpdateMatch, setPendingScoreUpdateMatch] = useState<ScoreUpdateTarget | null>(null);
   const [activeScoreUpdateMatch, setActiveScoreUpdateMatch] = useState<ScoreUpdateTarget | null>(null);
+  const [championData, setChampionData] = useState<CompetitorData | null>(null);
 
   const handleOpenDraw = () => {
     setPendingScoreUpdateMatch(null);
@@ -317,6 +349,26 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
       const isGroupCComplete = ((groupCNode?.data as any)?.matches || []).filter((m: any) => m.homeScore !== null && m.awayScore !== null).length >= 1;
       const isGroupDComplete = ((groupDNode?.data as any)?.matches || []).filter((m: any) => m.homeScore !== null && m.awayScore !== null).length >= 1;
 
+      // Step 3: Auto-advance Winners of Semi-Finals into Grand Final (gf-1)
+      const sf1Node = nodesAfterUpdate.find((n) => n.id === "sf-1");
+      const sf2Node = nodesAfterUpdate.find((n) => n.id === "sf-2");
+
+      const sf1Home = (sf1Node?.data as any)?.home;
+      const sf1Away = (sf1Node?.data as any)?.away;
+      let sf1Winner = null;
+      if (sf1Home?.score !== null && sf1Home?.score !== undefined && sf1Away?.score !== null && sf1Away?.score !== undefined) {
+        if (sf1Home.score > sf1Away.score) sf1Winner = sf1Home;
+        else if (sf1Away.score > sf1Home.score) sf1Winner = sf1Away;
+      }
+
+      const sf2Home = (sf2Node?.data as any)?.home;
+      const sf2Away = (sf2Node?.data as any)?.away;
+      let sf2Winner = null;
+      if (sf2Home?.score !== null && sf2Home?.score !== undefined && sf2Away?.score !== null && sf2Away?.score !== undefined) {
+        if (sf2Home.score > sf2Away.score) sf2Winner = sf2Home;
+        else if (sf2Away.score > sf2Home.score) sf2Winner = sf2Away;
+      }
+
       return nodesAfterUpdate.map((n) => {
         // Semi-Final 1 (Nhất A vs Nhất B)
         if (n.id === "sf-1" && n.type === "matchNode") {
@@ -350,6 +402,22 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
           };
         }
 
+        // Grand Final (Thắng Bán Kết 1 vs Thắng Bán Kết 2)
+        if (n.id === "gf-1" && n.type === "matchNode") {
+          const currentHome = (n.data as any).home;
+          const currentAway = (n.data as any).away;
+          const newHome = sf1Winner ? { ...sf1Winner, score: currentHome?.score ?? null } : currentHome;
+          const newAway = sf2Winner ? { ...sf2Winner, score: currentAway?.score ?? null } : currentAway;
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              home: newHome,
+              away: newAway,
+            }
+          };
+        }
+
         return n;
       });
     });
@@ -359,9 +427,18 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
     }
     if (updatedMatchData) {
       setSelectedMatch(updatedMatchData);
+
+      // Check if Grand Final produces a Champion!
+      if (matchId === "gf-1" && homeScore !== awayScore) {
+        const champ = homeScore > awayScore ? (updatedMatchData as any).home : (updatedMatchData as any).away;
+        if (champ) {
+          setChampionData(champ);
+        }
+      }
     }
 
     setActiveScoreUpdateMatch(null);
+    persistStateToDB();
   };
 
   // Perform single random draw (bốc thăm 1 người)
@@ -480,6 +557,7 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
 
     // Re-open DrawModal so Admin can draw the next player!
     setIsDrawModalOpen(true);
+    persistStateToDB();
   };
 
   return (
@@ -594,6 +672,13 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
           onSave={handleSaveMatchScore}
         />
       )}
+
+      {/* Champion Celebration Modal */}
+      <ChampionCelebrationModal
+        champion={championData}
+        isOpen={!!championData}
+        onClose={() => setChampionData(null)}
+      />
 
       {/* Player Details & Lineup Pitch Modal */}
       {selectedCompetitor && (

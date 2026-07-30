@@ -73,29 +73,17 @@ export const INITIAL_BRACKET_NODES: Node[] = [
     }
   },
 
-  // ================= CỘT 3: TRANH VÔ ĐỊCH & HẠNG 3 (TRUNG TÂM) =================
+  // ================= CỘT 3: TRANH VÔ ĐỊCH (TRUNG TÂM) =================
   {
     id: "gf-1",
     type: "matchNode",
-    position: { x: COLUMN_SPACING * 2, y: OFFSET_Y + 60 },
+    position: { x: COLUMN_SPACING * 2, y: OFFSET_Y + 160 },
     data: {
       id: "gf-1",
       roundName: "TRẬN CHUNG KẾT (GRAND FINAL)",
       home: null,
       away: null,
       isGrandFinal: true
-    }
-  },
-  {
-    id: "bf-1",
-    type: "matchNode",
-    position: { x: COLUMN_SPACING * 2, y: OFFSET_Y + 280 },
-    data: {
-      id: "bf-1",
-      roundName: "TRẬN TRANH HẠNG BA",
-      home: null,
-      away: null,
-      isBronzeFinal: true
     }
   },
 
@@ -158,7 +146,7 @@ export const INITIAL_BRACKET_EDGES: Edge[] = [
     style: { stroke: "#7C3AED", strokeWidth: 2.5 }
   },
 
-  // SF1 -> Grand Final & Bronze Final
+  // SF1 -> Grand Final
   {
     id: "e-sf-1-gf-1",
     source: "sf-1",
@@ -168,15 +156,6 @@ export const INITIAL_BRACKET_EDGES: Edge[] = [
     type: "smoothstep",
     animated: true,
     style: { stroke: "#A855F7", strokeWidth: 2.5 }
-  },
-  {
-    id: "e-sf-1-bf-1",
-    source: "sf-1",
-    sourceHandle: "source-right",
-    target: "bf-1",
-    targetHandle: "target-left",
-    type: "smoothstep",
-    style: { stroke: "#D97706", strokeWidth: 1.5 }
   },
 
   // Right Side Edges (Groups C, D -> SF2)
@@ -201,7 +180,7 @@ export const INITIAL_BRACKET_EDGES: Edge[] = [
     style: { stroke: "#7C3AED", strokeWidth: 2.5 }
   },
 
-  // SF2 -> Grand Final & Bronze Final
+  // SF2 -> Grand Final
   {
     id: "e-sf-2-gf-1",
     source: "sf-2",
@@ -211,15 +190,6 @@ export const INITIAL_BRACKET_EDGES: Edge[] = [
     type: "smoothstep",
     animated: true,
     style: { stroke: "#A855F7", strokeWidth: 2.5 }
-  },
-  {
-    id: "e-sf-2-bf-1",
-    source: "sf-2",
-    sourceHandle: "source-left",
-    target: "bf-1",
-    targetHandle: "target-right",
-    type: "smoothstep",
-    style: { stroke: "#D97706", strokeWidth: 1.5 }
   }
 ];
 

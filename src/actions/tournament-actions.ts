@@ -251,3 +251,43 @@ export async function startTournament(tournamentId: string) {
   revalidatePath(`/tournaments/${tournamentId}`);
   return { success: true, count: generatedMatches.length };
 }
+
+export async function saveBracketStateToDB(bracketDataJson: string) {
+  try {
+    const tournament = await db.tournament.findFirst();
+    if (tournament) {
+      await db.tournament.update({
+        where: { id: tournament.id },
+        data: { bracketData: bracketDataJson }
+      });
+      return { success: true };
+    }
+    await db.tournament.create({
+      data: {
+        title: "FC Online World Cup 2026",
+        description: "Giải đấu World Cup 30 đội tuyển hàng đầu",
+        format: "GROUP_STAGE",
+        rules: "Luật thi đấu chính thức",
+        startDate: new Date(),
+        bracketData: bracketDataJson
+      }
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to save bracket state:", error);
+    return { error: error?.message || "Failed to save to database" };
+  }
+}
+
+export async function loadBracketStateFromDB() {
+  try {
+    const tournament = await db.tournament.findFirst();
+    if (tournament && tournament.bracketData) {
+      return { success: true, bracketData: tournament.bracketData };
+    }
+    return { success: false };
+  } catch (error: any) {
+    console.error("Failed to load bracket state:", error);
+    return { error: error?.message };
+  }
+}
