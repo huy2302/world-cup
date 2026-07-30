@@ -5,20 +5,19 @@ import { buildSampleSquad } from "@/data/mockTournament";
 /**
  * Custom Tiebreaker Rule sorting:
  * 1. Points (Điểm số)
- * 2. Most Goals Scored (Số bàn thắng ghi được nhiều hơn)
- * 3. Head-to-Head (Lịch sử đối đầu)
+ * 2. Goal Difference (Hiệu số bàn thắng)
+ * 3. Head-to-Head (Thành tích đối đầu)
  * 4. Fewest Goals Conceded (Số bàn thua ít hơn)
- * 5. Overall Goal Difference (Hiệu số bàn thắng)
  */
 export function sortGroupTeams(teams: GroupTeam[] = [], matches: any[] = []): GroupTeam[] {
   return [...teams].sort((a, b) => {
     // 1. Points
     if (b.points !== a.points) return b.points - a.points;
 
-    // 2. Most Goals Scored (goalsFor)
-    if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+    // 2. Goal Difference (Hiệu số bàn thắng)
+    if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
 
-    // 3. Head-to-Head (Lịch sử đối đầu)
+    // 3. Head-to-Head (Thành tích đối đầu)
     if (matches && matches.length > 0) {
       const h2hMatch = matches.find((m) => {
         if (m.homeScore === null || m.homeScore === undefined) return false;
@@ -42,11 +41,8 @@ export function sortGroupTeams(teams: GroupTeam[] = [], matches: any[] = []): Gr
       }
     }
 
-    // 4. Fewest Goals Conceded (goalsAgainst - fewer is better)
-    if (a.goalsAgainst !== b.goalsAgainst) return a.goalsAgainst - b.goalsAgainst;
-
-    // 5. Goal Difference (goalDifference)
-    return b.goalDifference - a.goalDifference;
+    // 4. Fewest Goals Conceded (Số bàn thua ít hơn)
+    return a.goalsAgainst - b.goalsAgainst;
   });
 }
 

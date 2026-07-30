@@ -89,7 +89,7 @@ export default function TournamentRulesModal({ isOpen, onClose }: TournamentRule
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-400 font-bold">•</span>
-                <span>Giải đấu diễn ra trong 2 ngày liên tiếp.</span>
+                <span>Giải đấu diễn ra trong <strong>2 ngày liên tiếp</strong>.</span>
               </li>
             </ul>
           </div>
@@ -134,7 +134,7 @@ export default function TournamentRulesModal({ isOpen, onClose }: TournamentRule
               <li className="flex items-start gap-2">
                 <span className="text-purple-400 font-bold">•</span>
                 <span>
-                  Sau khi nhận đội tuyển, người chơi chỉ được build đội hình bằng các cầu thủ thuộc quốc gia đó.
+                  Sau khi nhận đội tuyển, người chơi chỉ được build đội hình bằng các cầu thủ <strong>thuộc đội tuyển quốc gia đó</strong>.
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -155,18 +155,18 @@ export default function TournamentRulesModal({ isOpen, onClose }: TournamentRule
             <ul className="space-y-1.5 pt-1 font-medium leading-relaxed text-slate-200">
               <li className="flex items-start gap-2">
                 <span className="text-emerald-400 font-bold">•</span>
-                <span>Được sử dụng tất cả mùa thẻ.</span>
+                <span><strong>Mùa thẻ sử dụng:</strong> PTG</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-400 font-bold">•</span>
                 <span>
-                  <strong>Mức thẻ cho phép:</strong> +1 → +13
+                  <strong>Mức thẻ cho phép:</strong> +8 → +10
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-400 font-bold">•</span>
                 <span>
-                  <strong>Không giới hạn</strong> giá trị đội hình (BP).
+                  <strong>Giá trị đội hình tối đa:</strong> 200 tỷ BP (Tổng giá trị đội hình không được vượt quá 200 tỷ BP).
                 </span>
               </li>
             </ul>
@@ -209,37 +209,66 @@ export default function TournamentRulesModal({ isOpen, onClose }: TournamentRule
               <Swords className="w-4 h-4 text-sky-400" />
               <span>Thể thức thi đấu</span>
             </div>
-            <ul className="space-y-1.5 pt-1 font-medium leading-relaxed text-slate-200">
-              <li className="flex items-start gap-2">
-                <span className="text-sky-400 font-bold">•</span>
-                <span>
-                  12 người chơi thi đấu theo thể thức{" "}
-                  <strong className="text-sky-400">Loại trực tiếp (Single Elimination)</strong>.
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sky-400 font-bold">•</span>
-                <span>BTC sẽ bốc thăm ngẫu nhiên cặp đấu trước mỗi vòng.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sky-400 font-bold">•</span>
-                <span>Đội thắng đi tiếp, đội thua bị loại. Không có vòng bảng.</span>
-              </li>
-            </ul>
+            
+            <div className="flex flex-col gap-2 pt-1">
+              <span className="font-extrabold text-cyan-300 text-xs uppercase tracking-wider">Vòng bảng:</span>
+              <ul className="space-y-1.5 font-medium leading-relaxed text-slate-200">
+                <li className="flex items-start gap-2">
+                  <span className="text-sky-400 font-bold">•</span>
+                  <span>12 người chơi được chia thành <strong>4 bảng</strong> (Mỗi bảng 3 người chơi).</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-sky-400 font-bold">•</span>
+                  <span>Thi đấu vòng tròn, mỗi người chơi thi đấu <strong>2 trận</strong> tại vòng bảng.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-sky-400 font-bold">•</span>
+                  <span><strong>Nhất mỗi bảng</strong> giành quyền đi tiếp (Tổng cộng 4 người chơi vào vòng knock-out).</span>
+                </li>
+              </ul>
+            </div>
 
-            {/* Stage Steps */}
-            <div className="flex items-center justify-center gap-1.5 sm:gap-3 py-3 px-2 bg-[#080d1a] rounded-xl border border-slate-800 text-[11px] font-black text-cyan-300 overflow-x-auto mt-1">
-              <span>Vòng 1</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-              <span>Tứ kết</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-              <span>Bán kết</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-              <span className="text-amber-400">Chung kết</span>
+            <div className="flex flex-col gap-2 pt-2 border-t border-slate-800/60">
+              <span className="font-extrabold text-amber-300 text-xs uppercase tracking-wider">Xếp hạng vòng bảng:</span>
+              <div className="flex items-center gap-4 text-xs font-bold text-slate-200 bg-[#080d1a] p-2.5 rounded-xl border border-slate-800">
+                <span>Thắng: <strong className="text-emerald-400">3 điểm</strong></span>
+                <span>Hòa: <strong className="text-amber-400">1 điểm</strong></span>
+                <span>Thua: <strong className="text-rose-400">0 điểm</strong></span>
+              </div>
+              <p className="text-[11px] text-slate-300 font-semibold pt-1">
+                Thứ tự ưu tiên xét khi các người chơi bằng điểm:
+              </p>
+              <ol className="list-decimal list-inside space-y-1 font-semibold text-cyan-300 pl-1 text-[11px]">
+                <li><strong>Hiệu số bàn thắng</strong></li>
+                <li><strong>Thành tích đối đầu</strong></li>
+                <li><strong>Số bàn thua</strong></li>
+              </ol>
             </div>
           </div>
 
-          {/* Section 7: Luật thi đấu */}
+          {/* Section 7: Vòng loại trực tiếp */}
+          <div className="p-4 rounded-2xl bg-[#131b2e] border border-slate-800/80 flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-rose-400 font-extrabold text-sm border-b border-slate-800 pb-2">
+              <Swords className="w-4 h-4 text-rose-400" />
+              <span>Vòng loại trực tiếp</span>
+            </div>
+            <ul className="space-y-1.5 pt-1 font-medium leading-relaxed text-slate-200">
+              <li className="flex items-start gap-2">
+                <span className="text-rose-400 font-bold">•</span>
+                <span><strong>Bán kết:</strong> 4 người chơi → 2 trận</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-rose-400 font-bold">•</span>
+                <span><strong>Chung kết:</strong> 2 người chơi → 1 trận</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-rose-400 font-bold">•</span>
+                <span>BTC sẽ bốc thăm ngẫu nhiên cặp đấu bán kết. Người thắng tiến vào chung kết, người thua bị loại.</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Section 8: Luật thi đấu */}
           <div className="p-4 rounded-2xl bg-[#131b2e] border border-slate-800/80 flex flex-col gap-2">
             <div className="flex items-center gap-2 text-indigo-400 font-extrabold text-sm border-b border-slate-800 pb-2">
               <Scale className="w-4 h-4 text-indigo-400" />
@@ -248,24 +277,26 @@ export default function TournamentRulesModal({ isOpen, onClose }: TournamentRule
             <ul className="space-y-1.5 pt-1 font-medium leading-relaxed text-slate-200">
               <li className="flex items-start gap-2">
                 <span className="text-indigo-400 font-bold">•</span>
-                <span>
-                  <strong>Không có kết quả hòa.</strong>
-                </span>
+                <span>Vòng bảng có thể có kết quả hòa.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-indigo-400 font-bold">•</span>
+                <span><strong>Các trận bán kết và chung kết không có kết quả hòa.</strong></span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-indigo-400 font-bold">•</span>
                 <span>
-                  Nếu hòa sau thời gian chính thức: <strong>Đá hiệp phụ</strong>. Nếu vẫn hòa sẽ phân định bằng <strong>sút luân lưu (Penalty)</strong>.
+                  Nếu hòa sau thời gian chính thức ở vòng loại trực tiếp: <strong>Đá hiệp phụ</strong>. Nếu vẫn hòa: Phân định bằng <strong>sút luân lưu (Penalty)</strong>.
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-indigo-400 font-bold">•</span>
-                <span>Mỗi trận bắt buộc phải xác định một đội thắng.</span>
+                <span>Mỗi trận đấu loại trực tiếp bắt buộc phải xác định một đội thắng.</span>
               </li>
             </ul>
           </div>
 
-          {/* Section 8: Giải thưởng */}
+          {/* Section 9: Giải thưởng */}
           <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/40 flex flex-col gap-2">
             <div className="flex items-center gap-2 text-amber-400 font-extrabold text-sm border-b border-amber-500/30 pb-2">
               <Award className="w-4 h-4 text-amber-400" />
@@ -281,7 +312,7 @@ export default function TournamentRulesModal({ isOpen, onClose }: TournamentRule
             </div>
           </div>
 
-          {/* Section 9: Quy định & Fair-play */}
+          {/* Section 10: Quy định & Tôn trọng */}
           <div className="p-4 rounded-2xl bg-[#131b2e] border border-slate-800/80 flex flex-col gap-2">
             <div className="flex items-center gap-2 text-rose-400 font-extrabold text-sm border-b border-slate-800 pb-2">
               <FileCheck className="w-4 h-4 text-rose-400" />
@@ -295,6 +326,14 @@ export default function TournamentRulesModal({ isOpen, onClose }: TournamentRule
               <li className="flex items-start gap-2">
                 <span className="text-rose-400 font-bold">•</span>
                 <span>Không được sử dụng cầu thủ ngoài quốc tịch đã nhận.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-rose-400 font-bold">•</span>
+                <span>Chỉ được sử dụng <strong>mùa thẻ PTG</strong>, mức thẻ <strong>+8 đến +10</strong>.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-rose-400 font-bold">•</span>
+                <span>Giá trị đội hình không được vượt quá <strong>200 tỷ BP</strong>.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-rose-400 font-bold">•</span>

@@ -508,8 +508,9 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
     }
 
     // 4. Highlight target group node and insert player
+    let updatedNodesList = nodes;
     setNodes((prevNodes) => {
-      return prevNodes.map((n) => {
+      updatedNodesList = prevNodes.map((n) => {
         if (n.id === targetGroupId && n.type === "groupNode") {
           const currentTeams = [...((n.data as any).teams || [])];
           const newTeamEntry = {
@@ -546,11 +547,14 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
           }
         };
       });
+      return updatedNodesList;
     });
 
     // Update unassigned and assigned teams states
-    setUnassignedPlayers((prev) => prev.filter((p) => p.name.toLowerCase() !== player.name.toLowerCase()));
-    setAssignedTeams((prev) => [...prev, team.name]);
+    const nextUnassigned = unassignedPlayers.filter((p) => p.name.toLowerCase() !== player.name.toLowerCase());
+    const nextAssigned = [...assignedTeams, team.name];
+    setUnassignedPlayers(nextUnassigned);
+    setAssignedTeams(nextAssigned);
 
     let updatedRegisteredPlayers: RegisteredPlayer[] = registeredPlayers;
     setRegisteredPlayers((prev) => {
@@ -591,7 +595,9 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
 
     // Re-open DrawModal so Admin can draw the next player!
     setIsDrawModalOpen(true);
-    persistStateToDB(nodes, unassignedPlayers.filter((p) => p.name.toLowerCase() !== player.name.toLowerCase()), [...assignedTeams, team.name], updatedRegisteredPlayers);
+    
+    // Save updated nodes, unassigned list, assigned teams & registered players to DB immediately!
+    persistStateToDB(updatedNodesList, nextUnassigned, nextAssigned, updatedRegisteredPlayers);
     updateUserDrawnTeamInDB({ ign: player.name, teamName: team.name, teamFlag: team.flag });
   };
 
@@ -607,6 +613,7 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
               onOpenRegister={() => setIsRegisterOpen(true)}
               onOpenRules={() => setIsRulesOpen(true)}
               onOpenDraw={handleOpenDraw}
+              registeredCount={registeredPlayers.length}
             />
             <ReactFlowBracket
               nodes={nodes}
@@ -651,6 +658,7 @@ export default function TournamentPage({ initialTournament }: TournamentPageProp
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
         onSubmit={handleRegisterSubmit}
+        registeredCount={registeredPlayers.length}
       />
 
       {/* Admin Password Authentication Modal (Pass: 2323) */}

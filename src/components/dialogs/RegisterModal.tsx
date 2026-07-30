@@ -71,17 +71,21 @@ interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (formData: PlayerRegistrationForm) => void;
+  registeredCount?: number;
 }
 
-export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterModalProps) {
+export default function RegisterModal({ isOpen, onClose, onSubmit, registeredCount = 0 }: RegisterModalProps) {
   const [fullName, setFullName] = useState("");
   const [ign, setIgn] = useState("");
   const [formation, setFormation] = useState<FormationType>("4-2-3-1");
 
   if (!isOpen) return null;
 
+  const isLocked = registeredCount >= 12;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLocked) return;
     if (!fullName.trim() || !ign.trim()) return;
 
     onSubmit({
@@ -96,9 +100,15 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn"
+    >
       {/* Modal Dialog Container */}
-      <div className="relative w-full max-w-lg bg-[#0D111E] border border-[#1F263B] rounded-3xl p-6 shadow-2xl text-white flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-lg bg-[#0D111E] border border-[#1F263B] rounded-3xl p-6 shadow-2xl text-white flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#1F263B] pb-4">
           <div className="flex items-center gap-3">
@@ -107,7 +117,7 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
             </div>
             <div>
               <h2 className="text-lg font-black text-white tracking-tight uppercase">ĐĂNG KÝ THAM GIA GIẢI ĐẤU</h2>
-              <span className="text-xs text-slate-400">FC Online World Cup Champions Cup 2026</span>
+              <span className="text-xs text-slate-400">FC Online World Cup Champions Cup 2026 ({registeredCount}/12 Slot)</span>
             </div>
           </div>
 
@@ -119,13 +129,22 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
           </button>
         </div>
 
-        {/* Info Banner about Random Team Draw */}
-        <div className="p-3 rounded-2xl bg-purple-950/40 border border-purple-800/40 flex items-center gap-3 text-xs text-purple-200">
-          <Dices className="w-5 h-5 text-amber-400 shrink-0 animate-bounce" />
-          <span>
-            <strong className="text-white">Bốc thăm Đội tuyển:</strong> Đội tuyển đại diện của bạn sẽ được Admin bốc thăm ngẫu nhiên (không trùng lặp) trong buổi quay giải!
-          </span>
-        </div>
+        {/* Info Banner about Slot Limit */}
+        {isLocked ? (
+          <div className="p-3.5 rounded-2xl bg-amber-950/60 border border-amber-500/60 flex items-center gap-3 text-xs text-amber-200">
+            <Trophy className="w-5 h-5 text-amber-400 shrink-0" />
+            <span>
+              <strong className="text-white">Đã đủ 12/12 Slot:</strong> Cổng đăng ký đã đạt đủ số lượng VĐV tối đa và chính thức đóng lại!
+            </span>
+          </div>
+        ) : (
+          <div className="p-3 rounded-2xl bg-purple-950/40 border border-purple-800/40 flex items-center gap-3 text-xs text-purple-200">
+            <Dices className="w-5 h-5 text-amber-400 shrink-0 animate-bounce" />
+            <span>
+              <strong className="text-white">Bốc thăm Đội tuyển:</strong> Đội tuyển đại diện của bạn sẽ được Admin bốc thăm ngẫu nhiên (không trùng lặp) trong buổi quay giải!
+            </span>
+          </div>
+        )}
 
         {/* Registration Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -137,10 +156,11 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
             <input
               type="text"
               required
+              disabled={isLocked}
               placeholder="Nhập tên thật của bạn (VD: Nguyễn Văn A)"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full bg-[#131827] border border-[#232A3D] focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition"
+              className="w-full bg-[#131827] border border-[#232A3D] focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition disabled:opacity-50"
             />
           </div>
 
@@ -152,10 +172,11 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
             <input
               type="text"
               required
+              disabled={isLocked}
               placeholder="Nhập tên Ingame FC Online (VD: FCPro_HuyDev)"
               value={ign}
               onChange={(e) => setIgn(e.target.value)}
-              className="w-full bg-[#131827] border border-[#232A3D] focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition font-bold"
+              className="w-full bg-[#131827] border border-[#232A3D] focus:border-[#7C3AED] rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition font-bold disabled:opacity-50"
             />
           </div>
 
@@ -177,8 +198,9 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
                   <button
                     key={fmt.id}
                     type="button"
+                    disabled={isLocked}
                     onClick={() => setFormation(fmt.id)}
-                    className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition text-center ${
+                    className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition text-center disabled:opacity-50 ${
                       isSelected
                         ? "bg-[#251A3E] border-[#7C3AED] text-white shadow-[0_0_12px_rgba(124,58,237,0.4)]"
                         : "bg-[#121727] border-[#1E263A] text-slate-400 hover:text-white hover:border-slate-600"
@@ -203,10 +225,10 @@ export default function RegisterModal({ isOpen, onClose, onSubmit }: RegisterMod
             </button>
             <button
               type="submit"
-              disabled={!fullName.trim() || !ign.trim()}
-              className="w-2/3 purple-glow-btn text-white py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition disabled:opacity-50"
+              disabled={isLocked || !fullName.trim() || !ign.trim()}
+              className="w-2/3 purple-glow-btn text-white py-2.5 rounded-xl text-xs font-extrabold flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Check className="w-4 h-4" /> XÁC NHẬN ĐĂNG KÝ
+              <Check className="w-4 h-4" /> {isLocked ? "ĐÃ KHÓA THAM GIA (ĐỦ 12 SLOT)" : "XÁC NHẬN ĐĂNG KÝ"}
             </button>
           </div>
         </form>

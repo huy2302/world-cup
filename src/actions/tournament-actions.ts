@@ -399,6 +399,13 @@ export async function registerPlayerToDB(form: {
   squadValue?: string;
 }) {
   try {
+    // Check maximum 12 slots limit
+    const count = await db.user.count();
+    const existingUser = await db.user.findUnique({ where: { username: form.ign } });
+    if (count >= 12 && !existingUser) {
+      return { error: "Giải đấu đã đủ 12/12 VĐV đăng ký. Đã khóa cổng đăng ký!" };
+    }
+
     const avatarUrl = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(form.ign)}`;
     const email = `${form.ign.toLowerCase().replace(/[^a-z0-9]/g, "")}@fconline.com`;
     const username = form.ign;

@@ -10,9 +10,10 @@ interface TournamentHeaderProps {
   onOpenRegister?: () => void;
   onOpenRules?: () => void;
   onOpenDraw?: () => void;
+  registeredCount?: number;
 }
 
-export default function TournamentHeader({ onOpenRegister, onOpenRules, onOpenDraw }: TournamentHeaderProps) {
+export default function TournamentHeader({ onOpenRegister, onOpenRules, onOpenDraw, registeredCount = 0 }: TournamentHeaderProps) {
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
     hours: number;
@@ -64,14 +65,14 @@ export default function TournamentHeader({ onOpenRegister, onOpenRules, onOpenDr
         {/* Title & Live Status Tag */}
         <div className="flex flex-col gap-1">
           <h1 className="text-xl font-extrabold text-white tracking-tight">
-            FC Online Champions Cup 2026 - Season 1
+            FC Online Trung Quốc - World Cup Draft Tournament
           </h1>
           <div className="flex items-center gap-2">
             <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#7C3AED]/20 text-[#A855F7] border border-[#7C3AED]/40 uppercase tracking-wider">
               Live
             </span>
             <span className="text-xs text-slate-400 font-medium">
-              Deadline: 19:00 • 03/08/2026 (GMT+7)
+              Khai mạc: 19:30 • 03/08/2026 (GMT+7)
             </span>
           </div>
         </div>
@@ -134,13 +135,24 @@ export default function TournamentHeader({ onOpenRegister, onOpenRules, onOpenDr
           </button>
 
           {/* Register Button */}
-          <button
-            onClick={onOpenRegister}
-            className="purple-glow-btn text-white px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition hover:scale-105 active:scale-95 cursor-pointer"
-          >
-            <Trophy className="w-4 h-4 fill-white" />
-            <span>Register Now</span>
-          </button>
+          {registeredCount >= 12 ? (
+            <button
+              disabled
+              className="bg-slate-800/90 text-amber-400 border border-amber-500/50 px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 cursor-not-allowed shadow-lg"
+              title="Giải đấu đã đủ 12/12 slot VĐV đăng ký"
+            >
+              <Trophy className="w-4 h-4 fill-amber-400" />
+              <span>ĐÃ ĐỦ 12/12 SLOT (KHÓA)</span>
+            </button>
+          ) : (
+            <button
+              onClick={onOpenRegister}
+              className="purple-glow-btn text-white px-5 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 transition hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <Trophy className="w-4 h-4 fill-white" />
+              <span>Đăng ký tham gia</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
