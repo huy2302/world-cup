@@ -155,12 +155,12 @@ export default function TournamentRulesModal({ isOpen, onClose }: TournamentRule
             <ul className="space-y-1.5 pt-1 font-medium leading-relaxed text-slate-200">
               <li className="flex items-start gap-2">
                 <span className="text-emerald-400 font-bold">•</span>
-                <span><strong>Mùa thẻ sử dụng:</strong> PTG</span>
+                <span><strong>Mùa thẻ sử dụng:</strong> PTG, WG, Live</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-400 font-bold">•</span>
                 <span>
-                  <strong>Mức thẻ cho phép:</strong> +8 → +10
+                  <strong>Mức thẻ cho phép:</strong> +8
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -329,7 +329,7 @@ export default function TournamentRulesModal({ isOpen, onClose }: TournamentRule
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-rose-400 font-bold">•</span>
-                <span>Chỉ được sử dụng <strong>mùa thẻ PTG</strong>, mức thẻ <strong>+8 đến +10</strong>.</span>
+                <span>Chỉ được sử dụng <strong>mùa thẻ PTG, WG, Live</strong>, mức thẻ <strong>+8</strong>.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-rose-400 font-bold">•</span>

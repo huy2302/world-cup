@@ -1,6 +1,6 @@
 export type FormationType = "4-2-3-1" | "4-3-3" | "4-1-2-1-2" | "3-5-2" | "5-2-1-2";
 
-export type CardSeason = "24TOTS" | "ICON" | "World Legend" | "CC" | "LN" | "SPL" | "BTB";
+export type CardSeason = "24TOTS" | "ICON" | "World Legend" | "CC" | "LN" | "SPL" | "BTB" | "PTG" | "WG" | "Live";
 
 export interface FootballPlayer {
   id: string;

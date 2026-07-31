@@ -465,7 +465,8 @@ export async function loadRegisteredPlayersFromDB() {
         "Anh": "https://flagcdn.com/w40/gb-eng.png",
         "Hà Lan": "https://flagcdn.com/w40/nl.png",
         "Nhật Bản": "https://flagcdn.com/w40/jp.png",
-        "Hàn Quốc": "https://flagcdn.com/w40/kr.png"
+        "Hàn Quốc": "https://flagcdn.com/w40/kr.png",
+        "Ý": "https://flagcdn.com/w40/it.png"
       };
       return flagsMap[teamName] || "";
     };

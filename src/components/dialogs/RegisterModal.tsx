@@ -13,13 +13,14 @@ export interface NationalTeam {
 }
 
 export const WORLD_CUP_TEAMS: NationalTeam[] = [
-  // 🔴 Tier S (6 đội)
+  // 🔴 Tier S (7 đội)
   { id: "fra", name: "Pháp", code: "FRA", flag: "https://flagcdn.com/w40/fr.png", tier: "S" },
   { id: "esp", name: "Tây Ban Nha", code: "ESP", flag: "https://flagcdn.com/w40/es.png", tier: "S" },
   { id: "arg", name: "Argentina", code: "ARG", flag: "https://flagcdn.com/w40/ar.png", tier: "S" },
   { id: "bra", name: "Brazil", code: "BRA", flag: "https://flagcdn.com/w40/br.png", tier: "S" },
   { id: "por", name: "Bồ Đào Nha", code: "POR", flag: "https://flagcdn.com/w40/pt.png", tier: "S" },
   { id: "eng", name: "Anh", code: "ENG", flag: "https://flagcdn.com/w40/gb-eng.png", tier: "S" },
+  { id: "ita", name: "Ý", code: "ITA", flag: "https://flagcdn.com/w40/it.png", tier: "S" },
 
   // 🟠 Tier A (10 đội)
   { id: "ger", name: "Đức", code: "GER", flag: "https://flagcdn.com/w40/de.png", tier: "A" },
